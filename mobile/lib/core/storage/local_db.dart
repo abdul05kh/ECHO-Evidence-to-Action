@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:io';
 import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
@@ -120,7 +119,6 @@ class EchoDatabase extends _$EchoDatabase {
   @override
   int get schemaVersion => 1;
 
-  // Custom database connection opener
   static LazyDatabase _openConnection() {
     return LazyDatabase(() async {
       final dbFolder = await getApplicationDocumentsDirectory();

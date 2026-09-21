@@ -1,5 +1,4 @@
 import 'dart:convert';
-import '../packet/domain/action_packet.dart';
 
 /// Validates raw JSON output from the AI model against the ActionPacket contract.
 class SchemaValidator {

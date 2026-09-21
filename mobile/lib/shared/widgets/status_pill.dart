@@ -82,7 +82,7 @@ class StatusPill extends StatelessWidget {
       decoration: BoxDecoration(
         color: bg,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: fg.withOpacity(0.3), width: 1),
+        border: Border.all(color: fg.withValues(alpha: 0.3), width: 1),
       ),
       child: Text(
         label,
@@ -147,7 +147,7 @@ class PriorityBadge extends StatelessWidget {
       decoration: BoxDecoration(
         color: bg,
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: fg.withOpacity(0.3)),
+        border: Border.all(color: fg.withValues(alpha: 0.3)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,

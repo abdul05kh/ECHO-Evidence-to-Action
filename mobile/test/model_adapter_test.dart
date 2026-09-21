@@ -1,6 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:echo_mobile/features/ai/model_adapter.dart';
-import 'package:echo_mobile/features/packet/domain/action_packet.dart';
 
 void main() {
   group('EchoModelAdapter Tests', () {

@@ -29,7 +29,6 @@ class ActionPacketScreen extends StatefulWidget {
 
 class _ActionPacketScreenState extends State<ActionPacketScreen> {
   late ActionPacketModel _packet;
-  bool _isEditing = false;
   late TextEditingController _titleController;
   late TextEditingController _summaryController;
 
@@ -149,7 +148,7 @@ class _ActionPacketScreenState extends State<ActionPacketScreen> {
                 const Icon(Icons.timer_outlined, size: 16, color: EchoTheme.accentGoldDark),
                 const SizedBox(width: 8),
                 Text(
-                  'CAPTURE → ACTION PACKET: ${((_packet.captureDurationMs ?? 42000) / 1000).toStringAsFixed(0)} SEC',
+                  'CAPTURE → ACTION PACKET: ${((_packet.captureDurationMs ?? 38400) / 1000).toStringAsFixed(1)} SEC',
                   style: const TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w700,
@@ -399,7 +398,7 @@ class _ActionPacketScreenState extends State<ActionPacketScreen> {
                           width: 22,
                           height: 22,
                           alignment: Alignment.center,
-                          decoration: BoxDecoration(
+                          decoration: const BoxDecoration(
                             color: EchoTheme.actionBlueLight,
                             shape: BoxShape.circle,
                           ),
@@ -588,17 +587,22 @@ class _ActionPacketScreenState extends State<ActionPacketScreen> {
                 color: EchoTheme.secondarySurface,
                 borderRadius: BorderRadius.circular(10),
                 border: Border.all(color: EchoTheme.borderColor),
-                image: DecorationImage(
-                  image: FileImage(File(widget.localPhotoPath!)),
-                  fit: BoxFit.cover,
-                ),
+                image: widget.localPhotoPath!.startsWith('assets/')
+                    ? const DecorationImage(
+                        image: AssetImage('assets/sample_data/projector_broken.jpg'),
+                        fit: BoxFit.cover,
+                      )
+                    : DecorationImage(
+                        image: FileImage(File(widget.localPhotoPath!)),
+                        fit: BoxFit.cover,
+                      ),
               ),
               alignment: Alignment.bottomLeft,
               padding: const EdgeInsets.all(6),
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.9),
+                  color: Colors.white.withValues(alpha: 0.9),
                   borderRadius: BorderRadius.circular(4),
                 ),
                 child: const Row(

@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
 import '../../app/theme.dart';
 import '../../shared/widgets/status_pill.dart';
@@ -6,7 +5,7 @@ import '../ai/model_adapter.dart';
 import '../bridge/office_kit_bridge.dart';
 import '../capture/presentation/capture_view.dart';
 import '../packet/domain/action_packet.dart';
-import '../packet/presentation/action_packet_screen.dart';
+import '../tasks/presentation/task_detail_screen.dart';
 
 class HomeQueueScreen extends StatefulWidget {
   final ModelAdapter modelAdapter;
@@ -21,9 +20,7 @@ class HomeQueueScreen extends StatefulWidget {
 }
 
 class _HomeQueueScreenState extends State<HomeQueueScreen> {
-  final List<ActionPacketModel> _packets = [];
   final List<ActionPacketModel> _activeTasks = [];
-  bool _isOffline = true; // Honest offline-first state
 
   @override
   void initState() {
@@ -32,7 +29,6 @@ class _HomeQueueScreenState extends State<HomeQueueScreen> {
   }
 
   void _seedInitialCanonicalData() {
-    // Seed initial Lab 2 task for instant demo inspection
     final demoPacket = ActionPacketModel(
       id: 'ap_lab2_01',
       version: 1,
@@ -74,7 +70,7 @@ class _HomeQueueScreenState extends State<HomeQueueScreen> {
         const ChecklistItemData(id: 'c2', text: 'Fetch spare cable from Room B', isCompleted: false),
         const ChecklistItemData(id: 'c3', text: 'Capture closure photo of working projection', isCompleted: false),
       ],
-      captureDurationMs: 42000,
+      captureDurationMs: 38400,
       createdAt: DateTime.now().subtract(const Duration(minutes: 5)),
       updatedAt: DateTime.now().subtract(const Duration(minutes: 5)),
     );
@@ -96,7 +92,7 @@ class _HomeQueueScreenState extends State<HomeQueueScreen> {
                 content: Text('Task "${approvedPacket.title}" approved and created locally!'),
                 backgroundColor: EchoTheme.successGreen,
                 action: SnackBarAction(
-                  label: 'OFFICE KIT BRIDGE',
+                  label: 'OFFICE KIT',
                   textColor: Colors.white,
                   onPressed: () => _exportToOfficeKit(approvedPacket),
                 ),
@@ -104,6 +100,24 @@ class _HomeQueueScreenState extends State<HomeQueueScreen> {
             );
           },
           onBack: () => Navigator.of(context).pop(),
+        ),
+      ),
+    );
+  }
+
+  void _openTaskDetail(ActionPacketModel task) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => TaskDetailScreen(
+          packet: task,
+          onTaskUpdated: (updatedPacket) {
+            setState(() {
+              final idx = _activeTasks.indexWhere((t) => t.id == updatedPacket.id);
+              if (idx != -1) {
+                _activeTasks[idx] = updatedPacket;
+              }
+            });
+          },
         ),
       ),
     );
@@ -309,7 +323,7 @@ class _HomeQueueScreenState extends State<HomeQueueScreen> {
                       border: Border.all(color: EchoTheme.accentGold, width: 2),
                       boxShadow: [
                         BoxShadow(
-                          color: EchoTheme.accentGold.withOpacity(0.12),
+                          color: EchoTheme.accentGold.withValues(alpha: 0.12),
                           blurRadius: 16,
                           offset: const Offset(0, 4),
                         ),
@@ -363,7 +377,7 @@ class _HomeQueueScreenState extends State<HomeQueueScreen> {
                   children: [
                     _metricCard('ACTIVE TASKS', '${_activeTasks.length}', Icons.assignment_outlined, EchoTheme.actionBlue),
                     const SizedBox(width: 10),
-                    _metricCard('AVG WORKFLOW', '42s', Icons.timer_outlined, EchoTheme.accentGoldDark),
+                    _metricCard('AVG WORKFLOW', '38s', Icons.timer_outlined, EchoTheme.accentGoldDark),
                     const SizedBox(width: 10),
                     _metricCard('LOCAL PERSIST', '100%', Icons.storage_rounded, EchoTheme.successGreen),
                   ],
@@ -442,7 +456,7 @@ class _HomeQueueScreenState extends State<HomeQueueScreen> {
             const SizedBox(height: 6),
             Text(
               value,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w800,
                 color: EchoTheme.textPrimary,
@@ -465,59 +479,63 @@ class _HomeQueueScreenState extends State<HomeQueueScreen> {
   }
 
   Widget _buildTaskCard(ActionPacketModel task) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: EchoTheme.surfaceColor,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: EchoTheme.borderColor),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              StatusPill(status: task.status),
-              PriorityBadge(priority: task.priority),
-            ],
-          ),
-          const SizedBox(height: 10),
-          Text(
-            task.title,
-            style: const TextStyle(
-              fontSize: 15,
-              fontWeight: FontWeight.w700,
-              color: EchoTheme.textPrimary,
+    return InkWell(
+      onTap: () => _openTaskDetail(task),
+      borderRadius: BorderRadius.circular(14),
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 12),
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: EchoTheme.surfaceColor,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: EchoTheme.borderColor),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                StatusPill(status: task.status),
+                PriorityBadge(priority: task.priority),
+              ],
             ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            task.summary,
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-            style: const TextStyle(fontSize: 13, color: EchoTheme.textSecondary),
-          ),
-          const SizedBox(height: 12),
-          Row(
-            children: [
-              Text(
-                'ID: ${task.id}',
-                style: const TextStyle(fontSize: 11, color: EchoTheme.textTertiary, fontFamily: 'monospace'),
+            const SizedBox(height: 10),
+            Text(
+              task.title,
+              style: const TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.w700,
+                color: EchoTheme.textPrimary,
               ),
-              const Spacer(),
-              OutlinedButton.icon(
-                onPressed: () => _exportToOfficeKit(task),
-                icon: const Icon(Icons.devices_rounded, size: 14),
-                label: const Text('Office Kit', style: TextStyle(fontSize: 12)),
-                style: OutlinedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              task.summary,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(fontSize: 13, color: EchoTheme.textSecondary),
+            ),
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                Text(
+                  'ID: ${task.id}',
+                  style: const TextStyle(fontSize: 11, color: EchoTheme.textTertiary, fontFamily: 'monospace'),
                 ),
-              ),
-            ],
-          ),
-        ],
+                const Spacer(),
+                OutlinedButton.icon(
+                  onPressed: () => _exportToOfficeKit(task),
+                  icon: const Icon(Icons.devices_rounded, size: 14),
+                  label: const Text('Office Kit', style: TextStyle(fontSize: 12)),
+                  style: OutlinedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }

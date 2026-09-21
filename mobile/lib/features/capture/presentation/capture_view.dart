@@ -3,10 +3,10 @@ import 'package:flutter/material.dart';
 import '../../../app/theme.dart';
 import '../../ai/model_adapter.dart';
 import '../../packet/domain/action_packet.dart';
+import '../../packet/presentation/action_packet_screen.dart';
 import 'audio_recorder_widget.dart';
 import 'camera_screen.dart';
 import 'processing_screen.dart';
-import '../presentation/../packet/presentation/action_packet_screen.dart';
 
 class CaptureView extends StatefulWidget {
   final ModelAdapter modelAdapter;
@@ -30,7 +30,8 @@ class _CaptureViewState extends State<CaptureView> {
   int _voiceDurationSec = 0;
   final TextEditingController _notesController = TextEditingController();
 
-  DateTime _captureStartTime = DateTime.now();
+  late DateTime _captureStartTime;
+  bool _isDemoFixtureLoaded = false;
 
   @override
   void initState() {
@@ -46,11 +47,12 @@ class _CaptureViewState extends State<CaptureView> {
 
   void _openCamera() {
     Navigator.of(context).push(
-      MaterialBarPageRoute(
+      MaterialPageRoute(
         builder: (context) => CameraScreen(
           onPhotoCaptured: (path) {
             setState(() {
               _photoPath = path;
+              _isDemoFixtureLoaded = false;
             });
           },
         ),
@@ -61,8 +63,9 @@ class _CaptureViewState extends State<CaptureView> {
   void _loadCanonicalDemoScenario() {
     setState(() {
       _notesController.text = 'Lab 2 projector is not powering on. The next class starts in about 20 minutes. We have a spare cable in the equipment room.';
-      _photoPath = 'assets/sample_data/projector_broken.jpg'; // Canonical photo marker
+      _photoPath = 'assets/sample_data/projector_broken.jpg';
       _voiceDurationSec = 18;
+      _isDemoFixtureLoaded = true;
     });
   }
 
@@ -76,6 +79,9 @@ class _CaptureViewState extends State<CaptureView> {
       );
       return;
     }
+
+    final now = DateTime.now();
+    final actualCaptureDurationMs = now.difference(_captureStartTime).inMilliseconds;
 
     final evidencePackage = EvidencePackage(
       photoPath: _photoPath,
@@ -92,15 +98,18 @@ class _CaptureViewState extends State<CaptureView> {
           evidence: evidencePackage,
           modelAdapter: widget.modelAdapter,
           onComplete: (packet) {
+            final packetWithActualDuration = packet.copyWith(
+              captureDurationMs: actualCaptureDurationMs > 0 ? actualCaptureDurationMs : 42000,
+            );
+
             Navigator.of(context).pushReplacement(
               MaterialPageRoute(
                 builder: (context) => ActionPacketScreen(
-                  packet: packet,
+                  packet: packetWithActualDuration,
                   localPhotoPath: _photoPath,
                   localVoicePath: _voicePath,
                   onApprove: (approvedPacket) {
-                    Navigator.of(context).pop(); // pop packet screen
-                    Navigator.of(context).pop(); // pop capture screen
+                    Navigator.of(context).pop();
                     widget.onPacketApproved(approvedPacket);
                   },
                   onCancel: () {
@@ -131,16 +140,17 @@ class _CaptureViewState extends State<CaptureView> {
           onPressed: widget.onBack,
         ),
         actions: [
-          // Quick canonical seed button for hackathon testing
+          // Clear demo scenario seed button
           TextButton.icon(
             onPressed: _loadCanonicalDemoScenario,
-            icon: const Icon(Icons.flash_on_rounded, size: 16, color: EchoTheme.accentGoldDark),
+            icon: const Icon(Icons.science_rounded, size: 16, color: EchoTheme.accentGoldDark),
             label: const Text(
-              'Lab 2 Scenario',
+              'DEMO SCENARIO',
               style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w700,
+                fontSize: 11.5,
+                fontWeight: FontWeight.w800,
                 color: EchoTheme.accentGoldDark,
+                letterSpacing: 0.3,
               ),
             ),
           ),
@@ -150,32 +160,29 @@ class _CaptureViewState extends State<CaptureView> {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          // Header Banner
-          Container(
-            padding: const EdgeInsets.all(14),
-            decoration: BoxDecoration(
-              color: EchoTheme.surfaceColor,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: EchoTheme.borderColor),
-            ),
-            child: const Row(
-              children: [
-                Icon(Icons.info_outline_rounded, size: 20, color: EchoTheme.actionBlue),
-                SizedBox(width: 10),
-                Expanded(
-                  child: Text(
-                    'Capture what you see & say. ECHO structures it on-device into an Action Packet.',
-                    style: TextStyle(
-                      fontSize: 12.5,
-                      color: EchoTheme.textSecondary,
-                      height: 1.35,
+          if (_isDemoFixtureLoaded) ...[
+            Container(
+              margin: const EdgeInsets.only(bottom: 12),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              decoration: BoxDecoration(
+                color: EchoTheme.accentGoldLight,
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: EchoTheme.accentGoldDark),
+              ),
+              child: const Row(
+                children: [
+                  Icon(Icons.info_outline, size: 16, color: EchoTheme.accentGoldDark),
+                  SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      'DEMO SCENARIO LOADED · Lab 2 Projector canonical fixture active',
+                      style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.w700, color: EchoTheme.accentGoldDark),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-          const SizedBox(height: 16),
+          ],
 
           // 1. Visual Evidence Section
           _buildSectionTitle('1. VISUAL EVIDENCE (PHOTO)', Icons.camera_alt_outlined),
@@ -206,7 +213,7 @@ class _CaptureViewState extends State<CaptureView> {
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.9),
+                      color: Colors.white.withValues(alpha: 0.9),
                       borderRadius: BorderRadius.circular(6),
                     ),
                     child: const Text(
@@ -221,7 +228,7 @@ class _CaptureViewState extends State<CaptureView> {
                         child: Container(
                           padding: const EdgeInsets.all(6),
                           decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.9),
+                            color: Colors.white.withValues(alpha: 0.9),
                             shape: BoxShape.circle,
                           ),
                           child: const Icon(Icons.refresh_rounded, size: 18, color: EchoTheme.textPrimary),
@@ -229,11 +236,14 @@ class _CaptureViewState extends State<CaptureView> {
                       ),
                       const SizedBox(width: 8),
                       InkWell(
-                        onTap: () => setState(() => _photoPath = null),
+                        onTap: () => setState(() {
+                          _photoPath = null;
+                          _isDemoFixtureLoaded = false;
+                        }),
                         child: Container(
                           padding: const EdgeInsets.all(6),
                           decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.9),
+                            color: Colors.white.withValues(alpha: 0.9),
                             shape: BoxShape.circle,
                           ),
                           child: const Icon(Icons.delete_outline_rounded, size: 18, color: EchoTheme.dangerRed),
@@ -254,7 +264,7 @@ class _CaptureViewState extends State<CaptureView> {
                 decoration: BoxDecoration(
                   color: EchoTheme.surfaceColor,
                   borderRadius: BorderRadius.circular(14),
-                  border: Border.all(color: EchoTheme.borderColor, style: BorderStyle.solid),
+                  border: Border.all(color: EchoTheme.borderColor),
                 ),
                 child: const Column(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -290,6 +300,7 @@ class _CaptureViewState extends State<CaptureView> {
               setState(() {
                 _voicePath = path;
                 _voiceDurationSec = duration;
+                _isDemoFixtureLoaded = false;
               });
             },
             onRecordingDeleted: () {
@@ -382,8 +393,4 @@ class _CaptureViewState extends State<CaptureView> {
       ],
     );
   }
-}
-
-class MaterialBarPageRoute<T> extends MaterialPageRoute<T> {
-  MaterialBarPageRoute({required super.builder});
 }

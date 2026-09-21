@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 /// Evidence reference linking a fact/inference to original media
 class EvidenceLink {
   final String evidenceId;

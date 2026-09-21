@@ -137,7 +137,7 @@ class _CameraScreenState extends State<CameraScreen> {
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
-        backgroundColor: Colors.black.withOpacity(0.7),
+        backgroundColor: Colors.black.withValues(alpha: 0.7),
         foregroundColor: Colors.white,
         title: const Text(
           'Capture Visual Evidence',
@@ -196,7 +196,7 @@ class _CameraScreenState extends State<CameraScreen> {
                         width: MediaQuery.of(context).size.width * 0.85,
                         height: MediaQuery.of(context).size.width * 0.85,
                         decoration: BoxDecoration(
-                          border: Border.all(color: Colors.white.withOpacity(0.6), width: 1.5),
+                          border: Border.all(color: Colors.white.withValues(alpha: 0.6), width: 1.5),
                           borderRadius: BorderRadius.circular(16),
                         ),
                       ),

@@ -18,10 +18,10 @@ class MissingInfoCard extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 10),
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: item.isResolved ? EchoTheme.successGreenLight.withOpacity(0.5) : const Color(0xFFFFFBEB),
+        color: item.isResolved ? EchoTheme.successGreenLight.withValues(alpha: 0.5) : const Color(0xFFFFFBEB),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: item.isResolved ? EchoTheme.successGreen.withOpacity(0.4) : EchoTheme.warningAmber.withOpacity(0.5),
+          color: item.isResolved ? EchoTheme.successGreen.withValues(alpha: 0.4) : EchoTheme.warningAmber.withValues(alpha: 0.5),
           width: 1.2,
         ),
       ),
