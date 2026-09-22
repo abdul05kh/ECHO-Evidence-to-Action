@@ -43,9 +43,6 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
-  assets:
-    - assets/
-    - assets/sample_data/
 
 dependency_overrides:
   record_platform_interface: 1.1.0

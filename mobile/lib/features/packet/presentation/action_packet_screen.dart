@@ -662,15 +662,12 @@ class _ActionPacketScreenState extends State<ActionPacketScreen> {
                 color: EchoTheme.secondarySurface,
                 borderRadius: BorderRadius.circular(10),
                 border: Border.all(color: EchoTheme.borderColor),
-                image: widget.localPhotoPath!.startsWith('assets/')
-                    ? const DecorationImage(
-                        image: AssetImage('assets/sample_data/projector_broken.jpg'),
-                        fit: BoxFit.cover,
-                      )
-                    : DecorationImage(
+                image: File(widget.localPhotoPath!).existsSync()
+                    ? DecorationImage(
                         image: FileImage(File(widget.localPhotoPath!)),
                         fit: BoxFit.cover,
-                      ),
+                      )
+                    : null,
               ),
               alignment: Alignment.bottomLeft,
               padding: const EdgeInsets.all(6),

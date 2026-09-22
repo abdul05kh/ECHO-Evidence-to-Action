@@ -215,15 +215,12 @@ class _CaptureViewState extends State<CaptureView> {
                 color: EchoTheme.secondarySurface,
                 borderRadius: BorderRadius.circular(14),
                 border: Border.all(color: EchoTheme.borderColor),
-                image: _photoPath!.startsWith('assets/')
-                    ? const DecorationImage(
-                        image: AssetImage('assets/sample_data/projector_broken.jpg'),
-                        fit: BoxFit.cover,
-                      )
-                    : DecorationImage(
+                image: File(_photoPath!).existsSync()
+                    ? DecorationImage(
                         image: FileImage(File(_photoPath!)),
                         fit: BoxFit.cover,
-                      ),
+                      )
+                    : null,
               ),
               alignment: Alignment.topRight,
               padding: const EdgeInsets.all(10),
