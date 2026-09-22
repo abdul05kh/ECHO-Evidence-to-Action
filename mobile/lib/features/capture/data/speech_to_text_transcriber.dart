@@ -113,7 +113,7 @@ class SpeechToTextTranscriber implements AudioTranscriber {
         runtime: TranscriptionRuntime.localDeviceRuntime,
         source: TranscriptionSource.localAudio,
         latencyMs: stopwatch.elapsedMilliseconds,
-        engine: 'Android On-Device SpeechRecognizer (Private Compute Core)',
+        engine: 'ON-DEVICE RECOGNITION SERVICE',
       );
     } else {
       return TranscriptionResult.unavailable(
@@ -134,7 +134,7 @@ class SpeechToTextTranscriber implements AudioTranscriber {
         runtime: TranscriptionRuntime.localDeviceRuntime,
         source: TranscriptionSource.localAudio,
         latencyMs: 120,
-        engine: 'Android On-Device SpeechRecognizer (Private Compute Core)',
+        engine: 'ON-DEVICE RECOGNITION SERVICE',
       );
     }
     return TranscriptionResult.unavailable(reason: 'OFFLINE_FILE_TRANSCRIPTION_UNSUPPORTED');

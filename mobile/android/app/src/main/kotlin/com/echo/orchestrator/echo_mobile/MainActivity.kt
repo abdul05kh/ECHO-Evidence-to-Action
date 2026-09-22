@@ -106,7 +106,7 @@ class MainActivity: FlutterActivity() {
                         result.success(mapOf(
                             "exists" to exists,
                             "length" to length,
-                            "isComplete" to (length >= 2588147712L * 0.98)
+                            "isComplete" to (length == 2588147712L)
                         ))
                     } else {
                         result.error("INVALID_ARGS", "modelPath is required", null)
@@ -118,19 +118,19 @@ class MainActivity: FlutterActivity() {
                         executor.execute {
                             try {
                                 val file = File(modelPath)
-                                if (file.exists() && file.length() >= 2588147712L * 0.98) {
+                                if (file.exists() && file.length() == 2588147712L) {
                                     activeModelPath = modelPath
                                     isLiteRtEngineInitialized = true
                                     mainHandler.post {
                                         result.success(mapOf(
                                             "initialized" to true,
-                                            "backend" to "LiteRT-LM (OpenCL GPU)",
+                                            "backend" to "LiteRT-LM (CPU / OpenCL Fallback)",
                                             "modelPath" to modelPath
                                         ))
                                     }
                                 } else {
                                     mainHandler.post {
-                                        result.error("MODEL_NOT_FOUND_OR_INCOMPLETE", "Model file does not exist or size is insufficient", null)
+                                        result.error("MODEL_NOT_FOUND_OR_INCOMPLETE", "Model file does not exist or size is not exactly 2588147712 bytes", null)
                                     }
                                 }
                             } catch (e: Exception) {

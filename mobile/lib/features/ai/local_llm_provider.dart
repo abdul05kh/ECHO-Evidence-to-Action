@@ -135,7 +135,7 @@ class LiteRtLocalLlmProvider implements LocalLlmProvider {
     _status = LocalLlmStatus.initializing;
     try {
       final file = await _getModelFile();
-      if (!file.existsSync() || file.lengthSync() < (modelSizeInBytes * 0.98)) {
+      if (!file.existsSync() || file.lengthSync() != modelSizeInBytes) {
         _status = LocalLlmStatus.notInstalled;
         _isInitialized = false;
         _activeBackend = null;
@@ -184,7 +184,7 @@ class LiteRtLocalLlmProvider implements LocalLlmProvider {
         _status != LocalLlmStatus.verifying && 
         _status != LocalLlmStatus.installing &&
         _status != LocalLlmStatus.initializing) {
-      if (file.existsSync() && file.lengthSync() >= (modelSizeInBytes * 0.98)) {
+      if (file.existsSync() && file.lengthSync() == modelSizeInBytes) {
         if (_isInitialized) {
           _status = LocalLlmStatus.ready;
         }
@@ -269,19 +269,17 @@ class LiteRtLocalLlmProvider implements LocalLlmProvider {
       await sink.flush();
       await sink.close();
 
-      _status = LocalLlmStatus.verifying;
-
       // Exact artifact size verification
       final downloadedLength = tempFile.lengthSync();
-      if (downloadedLength < (modelSizeInBytes * 0.98)) {
+      if (downloadedLength != modelSizeInBytes) {
         throw Exception('FILE_INTEGRITY: Downloaded file size ($downloadedLength bytes) does not match pinned artifact size ($modelSizeInBytes bytes)');
       }
 
       // Cryptographic SHA-256 verification
       final digest = await sha256.bind(tempFile.openRead()).first;
       final actualHash = digest.toString().toLowerCase();
-      if (actualHash != expectedSha256 && !actualHash.startsWith(expectedSha256.substring(0, 16))) {
-        // Log digest verification
+      if (actualHash != expectedSha256) {
+        throw Exception('FILE_INTEGRITY: SHA-256 ($actualHash) does not match expected pinned hash ($expectedSha256)');
       }
 
       _status = LocalLlmStatus.installing;

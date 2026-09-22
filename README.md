@@ -11,12 +11,13 @@
 
 ## 📱 Download Android APK
 
-**Version:** v1.0.0  
+**Version:** v1.0.1-android-final  
 **Architecture:** ARM64 (`arm64-v8a`)  
 **Package:** `com.echo.orchestrator.echo_mobile`  
-**SHA-256:** `7b13b158aee79f20163937997465ebd796e0c63b660c464594f018150c55f92f`
+**SHA-256:** `ccfed8f265d696dec51e78332667e3ea99690053e4d21e2ef43fb8f2876bf376`  
+**Size:** 24,110,314 bytes (23.0 MB)
 
-👉 **[Download Latest Android ARM64 APK](https://github.com/abdul05kh/ECHO-Evidence-to-Action/releases/latest/download/echo-android-arm64.apk)**
+👉 **[Download Android ARM64 APK (v1.0.1-android-final)](https://github.com/abdul05kh/ECHO-Evidence-to-Action/releases/download/v1.0.1-android-final/echo-android-arm64.apk)**
 
 👉 **[View All Releases & Checksums](https://github.com/abdul05kh/ECHO-Evidence-to-Action/releases)**
 
