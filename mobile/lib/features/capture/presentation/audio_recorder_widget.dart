@@ -85,7 +85,7 @@ class _AudioRecorderWidgetState extends State<AudioRecorderWidget> {
           _transcriptionResult = null;
         });
 
-        // Start local STT in parallel
+        // Start local native STT
         await _transcriber.startListening(
           onPartialResult: (words) {
             if (mounted) {
@@ -96,10 +96,14 @@ class _AudioRecorderWidgetState extends State<AudioRecorderWidget> {
           },
         );
 
-        await _audioRecorder.start(
-          const RecordConfig(encoder: AudioEncoder.aacLc, bitRate: 128000),
-          path: path,
-        );
+        try {
+          await _audioRecorder.start(
+            const RecordConfig(encoder: AudioEncoder.aacLc, bitRate: 128000),
+            path: path,
+          );
+        } catch (e) {
+          debugPrint('Audio recorder start warning: $e');
+        }
 
         _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
           if (mounted) {
@@ -117,16 +121,26 @@ class _AudioRecorderWidgetState extends State<AudioRecorderWidget> {
   Future<void> _stopRecording() async {
     _timer?.cancel();
     try {
-      final path = await _audioRecorder.stop();
+      String? path;
+      try {
+        path = await _audioRecorder.stop();
+      } catch (e) {
+        debugPrint('Audio recorder stop warning: $e');
+      }
+
       final result = await _transcriber.stopListening(durationMs: _recordDuration * 1000);
 
-      if (path != null) {
-        setState(() {
-          _isRecording = false;
-          _audioPath = path;
-          _transcriptionResult = result;
-        });
-        widget.onRecordingComplete(path, _recordDuration, result);
+      // Fallback path if path was not returned by recorder but was specified
+      final finalPath = path ?? _audioPath;
+
+      setState(() {
+        _isRecording = false;
+        _audioPath = finalPath;
+        _transcriptionResult = result;
+      });
+
+      if (finalPath != null) {
+        widget.onRecordingComplete(finalPath, _recordDuration, result);
       }
     } catch (e) {
       debugPrint('Error stopping recording: $e');

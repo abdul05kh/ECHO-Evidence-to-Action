@@ -14,7 +14,7 @@
 **Version:** v1.0.0  
 **Architecture:** ARM64 (`arm64-v8a`)  
 **Package:** `com.echo.orchestrator.echo_mobile`  
-**SHA-256:** `cde781f9f6a8be0a701d55422e484822e53e99919357bd06d99f88634903bc2f`
+**SHA-256:** `be371075fdf195e526f5d1021bcc5be94716fc3e0c18a815a4327f380ae99535`
 
 👉 **[Download Latest Android ARM64 APK](https://github.com/abdul05kh/ECHO-Evidence-to-Action/releases/latest/download/echo-android-arm64.apk)**
 

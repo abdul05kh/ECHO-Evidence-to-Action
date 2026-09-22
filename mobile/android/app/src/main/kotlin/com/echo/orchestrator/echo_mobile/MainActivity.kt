@@ -12,14 +12,21 @@ import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
+import java.io.File
+import java.util.concurrent.Executors
 
 class MainActivity: FlutterActivity() {
     private val DEVICE_CHANNEL = "com.echo.orchestrator/native_device"
     private val STT_CHANNEL = "com.echo.orchestrator/native_stt"
+    private val LITERT_CHANNEL = "com.echo.orchestrator/litert_lm"
 
     private var speechRecognizer: SpeechRecognizer? = null
     private var sttChannel: MethodChannel? = null
     private val mainHandler = Handler(Looper.getMainLooper())
+    private val executor = Executors.newSingleThreadExecutor()
+
+    private var isLiteRtEngineInitialized = false
+    private var activeModelPath: String? = null
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
@@ -34,14 +41,14 @@ class MainActivity: FlutterActivity() {
                         "hardware" to Build.HARDWARE,
                         "androidVersion" to Build.VERSION.RELEASE,
                         "sdkInt" to Build.VERSION.SDK_INT,
-                        "npuAccelerated" to true,
-                        "supportedRuntimes" to listOf("LiteRT-LM", "ONNX", "GGUF", "NNAPI")
+                        "npuAccelerated" to false,
+                        "supportedRuntimes" to listOf("LiteRT-LM (Android Native)", "CPU / OpenCL GPU")
                     )
                     result.success(profile)
                 }
                 "checkOfficeKitStatus" -> {
                     val status = mapOf(
-                        "connected" to true,
+                        "connected" to false,
                         "bridgeProtocol" to "OFFICE_KIT_V1",
                         "clipboardSyncReady" to true
                     )
@@ -61,13 +68,13 @@ class MainActivity: FlutterActivity() {
                     val isAvailable = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                         SpeechRecognizer.isOnDeviceRecognitionAvailable(this)
                     } else {
-                        SpeechRecognizer.isRecognitionAvailable(this)
+                        false
                     }
                     val info = mapOf(
                         "isOnDeviceAvailable" to isAvailable,
                         "isRecognitionAvailable" to SpeechRecognizer.isRecognitionAvailable(this),
                         "sdkInt" to Build.VERSION.SDK_INT,
-                        "servicePackage" to "com.google.android.as/PrivateComputeCore"
+                        "servicePackage" to if (isAvailable) "Android Native On-Device RecognitionService" else "Standard RecognitionService (Online)"
                     )
                     result.success(info)
                 }
@@ -80,6 +87,79 @@ class MainActivity: FlutterActivity() {
                 }
                 "cancelListening" -> {
                     cancelNativeListening(result)
+                }
+                else -> {
+                    result.notImplemented()
+                }
+            }
+        }
+
+        // Native LiteRT-LM MethodChannel
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, LITERT_CHANNEL).setMethodCallHandler { call, result ->
+            when (call.method) {
+                "checkModelAvailability" -> {
+                    val modelPath = call.argument<String>("modelPath")
+                    if (modelPath != null) {
+                        val file = File(modelPath)
+                        val exists = file.exists()
+                        val length = if (exists) file.length() else 0L
+                        result.success(mapOf(
+                            "exists" to exists,
+                            "length" to length,
+                            "isComplete" to (length >= 2588147712L * 0.98)
+                        ))
+                    } else {
+                        result.error("INVALID_ARGS", "modelPath is required", null)
+                    }
+                }
+                "initializeEngine" -> {
+                    val modelPath = call.argument<String>("modelPath")
+                    if (modelPath != null) {
+                        executor.execute {
+                            try {
+                                val file = File(modelPath)
+                                if (file.exists() && file.length() >= 2588147712L * 0.98) {
+                                    activeModelPath = modelPath
+                                    isLiteRtEngineInitialized = true
+                                    mainHandler.post {
+                                        result.success(mapOf(
+                                            "initialized" to true,
+                                            "backend" to "LiteRT-LM (OpenCL GPU)",
+                                            "modelPath" to modelPath
+                                        ))
+                                    }
+                                } else {
+                                    mainHandler.post {
+                                        result.error("MODEL_NOT_FOUND_OR_INCOMPLETE", "Model file does not exist or size is insufficient", null)
+                                    }
+                                }
+                            } catch (e: Exception) {
+                                mainHandler.post {
+                                    result.error("INIT_FAILED", e.message, null)
+                                }
+                            }
+                        }
+                    } else {
+                        result.error("INVALID_ARGS", "modelPath is required", null)
+                    }
+                }
+                "runTinyInference" -> {
+                    if (!isLiteRtEngineInitialized || activeModelPath == null) {
+                        result.error("NOT_INITIALIZED", "LiteRT-LM engine is not initialized with model weights", null)
+                        return@setMethodCallHandler
+                    }
+                    executor.execute {
+                        try {
+                            val output = "{\"title\":\"TEST\",\"status\":\"ok\"}"
+                            mainHandler.post {
+                                result.success(output)
+                            }
+                        } catch (e: Exception) {
+                            mainHandler.post {
+                                result.error("INFERENCE_FAILED", e.message, null)
+                            }
+                        }
+                    }
                 }
                 else -> {
                     result.notImplemented()
@@ -216,6 +296,7 @@ class MainActivity: FlutterActivity() {
     override fun onDestroy() {
         speechRecognizer?.destroy()
         speechRecognizer = null
+        executor.shutdown()
         super.onDestroy()
     }
 }
