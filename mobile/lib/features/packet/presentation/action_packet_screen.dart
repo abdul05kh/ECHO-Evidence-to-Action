@@ -166,6 +166,50 @@ class _ActionPacketScreenState extends State<ActionPacketScreen> {
             child: ListView(
               padding: const EdgeInsets.all(16),
               children: [
+                // Evidence Warning Banner if Needs Review / Unverified
+                if (_packet.confidenceState.toUpperCase().contains('NEEDS REVIEW') || _packet.status == 'needs_review') ...[
+                  Container(
+                    margin: const EdgeInsets.only(bottom: 14),
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: EchoTheme.warningAmberLight,
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: EchoTheme.warningAmber.withValues(alpha: 0.5)),
+                    ),
+                    child: const Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Icon(Icons.warning_amber_rounded, color: EchoTheme.warningAmber, size: 20),
+                        SizedBox(width: 10),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'EVIDENCE MAY NOT MATCH REPORTED ISSUE',
+                                style: TextStyle(
+                                  fontSize: 11.5,
+                                  fontWeight: FontWeight.w700,
+                                  color: EchoTheme.warningAmber,
+                                  letterSpacing: 0.3,
+                                ),
+                              ),
+                              SizedBox(height: 3),
+                              Text(
+                                'Attached image does not provide sufficient visual evidence to verify the reported failure. Review and confirm evidence before approving.',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: EchoTheme.textPrimary,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+
                 // Header Card
                 Container(
                   padding: const EdgeInsets.all(16),
@@ -509,34 +553,65 @@ class _ActionPacketScreenState extends State<ActionPacketScreen> {
                 const SizedBox(width: 12),
                 Expanded(
                   flex: 2,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      final approved = _packet.copyWith(
-                        status: 'approved',
-                        updatedAt: DateTime.now(),
-                      );
-                      widget.onApprove(approved);
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: EchoTheme.actionBlue,
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                    ),
-                    child: const Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.check_circle_rounded, size: 18),
-                        SizedBox(width: 8),
-                        Text(
-                          'APPROVE WORK ORDER',
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w700,
-                            letterSpacing: 0.3,
+                  child: _packet.status == 'needs_review'
+                      ? ElevatedButton(
+                          onPressed: () {
+                            setState(() {
+                              _packet = _packet.copyWith(
+                                status: 'ready',
+                                confidenceState: 'CONFIRMED BY OPERATOR',
+                                updatedAt: DateTime.now(),
+                              );
+                            });
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: EchoTheme.warningAmber,
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                          ),
+                          child: const Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(Icons.rule_folder_rounded, size: 18),
+                              SizedBox(width: 8),
+                              Text(
+                                'REVIEW & CONFIRM',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w700,
+                                  letterSpacing: 0.3,
+                                ),
+                              ),
+                            ],
+                          ),
+                        )
+                      : ElevatedButton(
+                          onPressed: () {
+                            final approved = _packet.copyWith(
+                              status: 'approved',
+                              updatedAt: DateTime.now(),
+                            );
+                            widget.onApprove(approved);
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: EchoTheme.actionBlue,
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                          ),
+                          child: const Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(Icons.check_circle_rounded, size: 18),
+                              SizedBox(width: 8),
+                              Text(
+                                'APPROVE WORK ORDER',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w700,
+                                  letterSpacing: 0.3,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
-                      ],
-                    ),
-                  ),
                 ),
               ],
             ),
@@ -620,39 +695,50 @@ class _ActionPacketScreenState extends State<ActionPacketScreen> {
           const SizedBox(width: 10),
         if (widget.localVoicePath != null)
           Expanded(
-            child: Container(
-              height: 100,
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: EchoTheme.secondarySurface,
-                borderRadius: BorderRadius.circular(10),
-                border: Border.all(color: EchoTheme.borderColor),
-              ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
+            child: Builder(
+              builder: (context) {
+                final voiceObs = _packet.observations.where(
+                  (o) => o.evidenceLinks.any((l) => l.type == 'voice'),
+                ).firstOrNull;
+                final voiceExcerpt = voiceObs?.evidenceLinks
+                    .firstWhere((l) => l.type == 'voice')
+                    .excerpt ?? voiceObs?.text ?? 'Voice note audio attached';
+
+                return Container(
+                  height: 100,
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: EchoTheme.secondarySurface,
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: EchoTheme.borderColor),
+                  ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Icon(Icons.mic_rounded, size: 16, color: EchoTheme.warningAmber),
-                      const SizedBox(width: 6),
-                      const Text(
-                        'Voice Note #01',
-                        style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700),
+                      const Row(
+                        children: [
+                          Icon(Icons.mic_rounded, size: 16, color: EchoTheme.warningAmber),
+                          SizedBox(width: 6),
+                          Text(
+                            'Voice Note #01',
+                            style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700),
+                          ),
+                          Spacer(),
+                          Text('Audio', style: TextStyle(fontSize: 11, color: EchoTheme.textSecondary)),
+                        ],
                       ),
-                      const Spacer(),
-                      Text('18s', style: TextStyle(fontSize: 11, color: EchoTheme.textSecondary)),
+                      const SizedBox(height: 6),
+                      Text(
+                        '"$voiceExcerpt"',
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(fontSize: 11.5, fontStyle: FontStyle.italic, color: EchoTheme.textSecondary),
+                      ),
                     ],
                   ),
-                  const SizedBox(height: 6),
-                  const Text(
-                    '"Lab 2 projector is not powering on..."',
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(fontSize: 11.5, fontStyle: FontStyle.italic, color: EchoTheme.textSecondary),
-                  ),
-                ],
-              ),
+                );
+              },
             ),
           ),
       ],

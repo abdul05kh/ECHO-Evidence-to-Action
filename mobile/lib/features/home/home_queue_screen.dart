@@ -4,8 +4,12 @@ import '../../shared/widgets/status_pill.dart';
 import '../ai/model_adapter.dart';
 import '../bridge/office_kit_bridge.dart';
 import '../capture/presentation/capture_view.dart';
+import '../fixtures/canonical_demo_fixture.dart';
 import '../packet/domain/action_packet.dart';
 import '../tasks/presentation/task_detail_screen.dart';
+
+import '../settings/presentation/ai_runtime_screen.dart';
+import '../ai/local_llm_provider.dart';
 
 class HomeQueueScreen extends StatefulWidget {
   final ModelAdapter modelAdapter;
@@ -29,52 +33,14 @@ class _HomeQueueScreenState extends State<HomeQueueScreen> {
   }
 
   void _seedInitialCanonicalData() {
-    final demoPacket = ActionPacketModel(
-      id: 'ap_lab2_01',
-      version: 1,
-      status: 'approved',
-      title: 'Lab 2 Projector Not Powering On',
-      category: 'equipment',
-      priority: 'high',
-      priorityReason: 'Upcoming class begins in 20 min; classroom instruction at risk.',
-      summary: 'Projector ceiling unit unlit. Spare cabling available in equipment room.',
-      observations: [
-        const ObservedFact(
-          text: 'Projector power LED dark / unlit in Lab 2.',
-          evidenceLinks: [EvidenceLink(evidenceId: 'ev_p1', type: 'photo', label: 'Photo #01')],
-        ),
-        const ObservedFact(
-          text: 'Class starts in 20 minutes.',
-          evidenceLinks: [EvidenceLink(evidenceId: 'ev_v1', type: 'voice', label: 'Voice Note #01', excerpt: 'next class starts in 20 minutes')],
-        ),
-      ],
-      inferences: [
-        const InferenceItem(
-          text: 'Probable cable disconnect or wall socket issue.',
-          basis: 'Inferred from lack of standby light.',
-          confidenceState: 'high',
-          supportingEvidence: [],
-        ),
-      ],
-      missingInformation: [
-        const MissingInfoItem(
-          prompt: 'Check Lab 2 breaker switch #4 on south wall.',
-          contextReason: 'Wall breaker status obscured in photo.',
-        ),
-      ],
-      suggestedActions: [
-        const SuggestedAction(step: 1, action: 'Check wall socket and swap power cable.'),
-      ],
-      checklist: [
-        const ChecklistItemData(id: 'c1', text: 'Verify wall power socket', isCompleted: true),
-        const ChecklistItemData(id: 'c2', text: 'Fetch spare cable from Room B', isCompleted: false),
-        const ChecklistItemData(id: 'c3', text: 'Capture closure photo of working projection', isCompleted: false),
-      ],
+    final demoPacket = CanonicalDemoFixture.buildPacket(
+      photoEvidenceId: 'ev_demo_seed_p1',
+      voiceEvidenceId: 'ev_demo_seed_v1',
       captureDurationMs: 38400,
-      createdAt: DateTime.now().subtract(const Duration(minutes: 5)),
-      updatedAt: DateTime.now().subtract(const Duration(minutes: 5)),
+    ).copyWith(
+      id: 'ap_demo_seed_01',
+      status: 'approved',
     );
-
     _activeTasks.add(demoPacket);
   }
 
@@ -264,6 +230,19 @@ class _HomeQueueScreenState extends State<HomeQueueScreen> {
           ],
         ),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.memory_rounded, color: EchoTheme.actionBlue),
+            tooltip: 'AI Runtime & Model Status',
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => AiRuntimeScreen(
+                    localLlmProvider: LiteRtLocalLlmProvider(),
+                  ),
+                ),
+              );
+            },
+          ),
           IconButton(
             icon: const Icon(Icons.tune_rounded),
             tooltip: 'Technical Diagnostic',

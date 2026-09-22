@@ -7,17 +7,22 @@ import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
 import 'package:uuid/uuid.dart';
 import '../../../app/theme.dart';
+import '../../../shared/widgets/status_pill.dart';
+import '../data/speech_to_text_transcriber.dart';
+import '../domain/audio_transcriber.dart';
 
 class AudioRecorderWidget extends StatefulWidget {
-  final Function(String path, int durationSec) onRecordingComplete;
+  final Function(String path, int durationSec, TranscriptionResult transcriptionResult) onRecordingComplete;
   final VoidCallback onRecordingDeleted;
   final String? initialAudioPath;
+  final TranscriptionResult? initialTranscriptionResult;
 
   const AudioRecorderWidget({
     super.key,
     required this.onRecordingComplete,
     required this.onRecordingDeleted,
     this.initialAudioPath,
+    this.initialTranscriptionResult,
   });
 
   @override
@@ -27,19 +32,24 @@ class AudioRecorderWidget extends StatefulWidget {
 class _AudioRecorderWidgetState extends State<AudioRecorderWidget> {
   late final AudioRecorder _audioRecorder;
   late final AudioPlayer _audioPlayer;
+  late final SpeechToTextTranscriber _transcriber;
 
   bool _isRecording = false;
   bool _isPlaying = false;
   String? _audioPath;
   int _recordDuration = 0;
   Timer? _timer;
+  String _liveTranscript = '';
+  TranscriptionResult? _transcriptionResult;
 
   @override
   void initState() {
     super.initState();
     _audioRecorder = AudioRecorder();
     _audioPlayer = AudioPlayer();
+    _transcriber = SpeechToTextTranscriber();
     _audioPath = widget.initialAudioPath;
+    _transcriptionResult = widget.initialTranscriptionResult;
 
     _audioPlayer.onPlayerStateChanged.listen((state) {
       if (mounted) {
@@ -48,6 +58,9 @@ class _AudioRecorderWidgetState extends State<AudioRecorderWidget> {
         });
       }
     });
+
+    // Warm up STT engine early
+    _transcriber.initialize();
   }
 
   @override
@@ -64,16 +77,29 @@ class _AudioRecorderWidgetState extends State<AudioRecorderWidget> {
         final docsDir = await getApplicationDocumentsDirectory();
         final path = p.join(docsDir.path, 'voice_${const Uuid().v4().substring(0, 8)}.m4a');
 
-        await _audioRecorder.start(
-          const RecordConfig(encoder: AudioEncoder.aacLc, bitRate: 128000),
-          path: path,
-        );
-
         setState(() {
           _isRecording = true;
           _recordDuration = 0;
           _audioPath = null;
+          _liveTranscript = '';
+          _transcriptionResult = null;
         });
+
+        // Start local STT in parallel
+        await _transcriber.startListening(
+          onPartialResult: (words) {
+            if (mounted) {
+              setState(() {
+                _liveTranscript = words;
+              });
+            }
+          },
+        );
+
+        await _audioRecorder.start(
+          const RecordConfig(encoder: AudioEncoder.aacLc, bitRate: 128000),
+          path: path,
+        );
 
         _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
           if (mounted) {
@@ -92,15 +118,21 @@ class _AudioRecorderWidgetState extends State<AudioRecorderWidget> {
     _timer?.cancel();
     try {
       final path = await _audioRecorder.stop();
+      final result = await _transcriber.stopListening(durationMs: _recordDuration * 1000);
+
       if (path != null) {
         setState(() {
           _isRecording = false;
           _audioPath = path;
+          _transcriptionResult = result;
         });
-        widget.onRecordingComplete(path, _recordDuration);
+        widget.onRecordingComplete(path, _recordDuration, result);
       }
     } catch (e) {
       debugPrint('Error stopping recording: $e');
+      setState(() {
+        _isRecording = false;
+      });
     }
   }
 
@@ -125,6 +157,8 @@ class _AudioRecorderWidgetState extends State<AudioRecorderWidget> {
       _audioPath = null;
       _recordDuration = 0;
       _isPlaying = false;
+      _liveTranscript = '';
+      _transcriptionResult = null;
     });
     widget.onRecordingDeleted();
   }
@@ -132,61 +166,122 @@ class _AudioRecorderWidgetState extends State<AudioRecorderWidget> {
   @override
   Widget build(BuildContext context) {
     if (_audioPath != null) {
+      final isTranscribed = _transcriptionResult?.isTranscribed == true;
+      final transcriptText = _transcriptionResult?.transcript ?? '';
+
       // Audio Recorded State
       return Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
         decoration: BoxDecoration(
           color: EchoTheme.surfaceColor,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(color: EchoTheme.borderColor),
         ),
-        child: Row(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            InkWell(
-              onTap: _togglePlayback,
-              borderRadius: BorderRadius.circular(20),
-              child: Container(
-                width: 36,
-                height: 36,
-                decoration: const BoxDecoration(
-                  color: EchoTheme.actionBlueLight,
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(
-                  _isPlaying ? Icons.pause_rounded : Icons.play_arrow_rounded,
-                  color: EchoTheme.actionBlue,
-                  size: 20,
-                ),
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'Voice Note Recorded',
-                    style: TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
-                      color: EchoTheme.textPrimary,
+            Row(
+              children: [
+                InkWell(
+                  onTap: _togglePlayback,
+                  borderRadius: BorderRadius.circular(20),
+                  child: Container(
+                    width: 36,
+                    height: 36,
+                    decoration: const BoxDecoration(
+                      color: EchoTheme.actionBlueLight,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      _isPlaying ? Icons.pause_rounded : Icons.play_arrow_rounded,
+                      color: EchoTheme.actionBlue,
+                      size: 20,
                     ),
                   ),
-                  Text(
-                    '${_recordDuration > 0 ? _recordDuration : 18}s · AAC Audio (Local)',
-                    style: const TextStyle(
-                      fontSize: 11.5,
-                      color: EchoTheme.textSecondary,
-                    ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          const Text(
+                            'VOICE NOTE #01',
+                            style: TextStyle(
+                              fontSize: 12.5,
+                              fontWeight: FontWeight.w700,
+                              color: EchoTheme.textPrimary,
+                              letterSpacing: 0.3,
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          if (isTranscribed)
+                            const StatusPill(status: 'transcribed', customLabel: 'TRANSCRIBED')
+                          else
+                            const StatusPill(status: 'needs_review', customLabel: 'TRANSCRIPTION UNAVAILABLE'),
+                        ],
+                      ),
+                      const SizedBox(height: 3),
+                      Text(
+                        '${_recordDuration > 0 ? _recordDuration : 3}s · ${isTranscribed ? "Local On-Device STT · High Confidence" : "Audio captured · Add text notes below if needed"}',
+                        style: const TextStyle(
+                          fontSize: 11.5,
+                          color: EchoTheme.textSecondary,
+                        ),
+                      ),
+                    ],
                   ),
-                ],
+                ),
+                IconButton(
+                  icon: const Icon(Icons.delete_outline_rounded, size: 20, color: EchoTheme.dangerRed),
+                  onPressed: _deleteRecording,
+                  tooltip: 'Delete Voice Note',
+                ),
+              ],
+            ),
+            if (isTranscribed) ...[
+              const SizedBox(height: 10),
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                decoration: BoxDecoration(
+                  color: EchoTheme.secondarySurface,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: EchoTheme.borderColor),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      '"$transcriptText"',
+                      style: const TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                        color: EchoTheme.textPrimary,
+                        fontStyle: FontStyle.italic,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    const Row(
+                      children: [
+                        Icon(Icons.memory_rounded, size: 12, color: EchoTheme.textTertiary),
+                        SizedBox(width: 4),
+                        Text(
+                          'Runtime: LOCAL DEVICE RUNTIME',
+                          style: TextStyle(
+                            fontSize: 10.5,
+                            fontWeight: FontWeight.w600,
+                            color: EchoTheme.textTertiary,
+                            letterSpacing: 0.3,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
-            ),
-            IconButton(
-              icon: const Icon(Icons.delete_outline_rounded, size: 20, color: EchoTheme.dangerRed),
-              onPressed: _deleteRecording,
-              tooltip: 'Delete Voice Note',
-            ),
+            ],
           ],
         ),
       );
@@ -201,35 +296,53 @@ class _AudioRecorderWidgetState extends State<AudioRecorderWidget> {
           borderRadius: BorderRadius.circular(12),
           border: Border.all(color: EchoTheme.dangerRed.withValues(alpha: 0.4)),
         ),
-        child: Row(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
-              width: 12,
-              height: 12,
-              decoration: const BoxDecoration(
-                color: EchoTheme.dangerRed,
-                shape: BoxShape.circle,
-              ),
+            Row(
+              children: [
+                Container(
+                  width: 12,
+                  height: 12,
+                  decoration: const BoxDecoration(
+                    color: EchoTheme.dangerRed,
+                    shape: BoxShape.circle,
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Text(
+                  'RECORDING: 00:${_recordDuration.toString().padLeft(2, '0')}',
+                  style: const TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                    color: EchoTheme.dangerRed,
+                    letterSpacing: 0.5,
+                  ),
+                ),
+                const Spacer(),
+                ElevatedButton(
+                  onPressed: _stopRecording,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: EchoTheme.dangerRed,
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                  ),
+                  child: const Text('STOP', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700)),
+                ),
+              ],
             ),
-            const SizedBox(width: 10),
-            Text(
-              'RECORDING: 00:${_recordDuration.toString().padLeft(2, '0')}',
-              style: const TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w700,
-                color: EchoTheme.dangerRed,
-                letterSpacing: 0.5,
+            if (_liveTranscript.isNotEmpty) ...[
+              const SizedBox(height: 8),
+              Text(
+                'Live STT: "$_liveTranscript"',
+                style: const TextStyle(
+                  fontSize: 12,
+                  color: EchoTheme.textPrimary,
+                  fontStyle: FontStyle.italic,
+                ),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
               ),
-            ),
-            const Spacer(),
-            ElevatedButton(
-              onPressed: _stopRecording,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: EchoTheme.dangerRed,
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-              ),
-              child: const Text('STOP', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700)),
-            ),
+            ],
           ],
         ),
       );

@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:uuid/uuid.dart';
 import '../../../app/theme.dart';
 import '../../ai/model_adapter.dart';
 import '../../packet/domain/action_packet.dart';
@@ -7,6 +8,7 @@ import '../../packet/presentation/action_packet_screen.dart';
 import 'audio_recorder_widget.dart';
 import 'camera_screen.dart';
 import 'processing_screen.dart';
+import '../domain/audio_transcriber.dart';
 
 class CaptureView extends StatefulWidget {
   final ModelAdapter modelAdapter;
@@ -28,10 +30,12 @@ class _CaptureViewState extends State<CaptureView> {
   String? _photoPath;
   String? _voicePath;
   int _voiceDurationSec = 0;
+  TranscriptionResult? _transcriptionResult;
   final TextEditingController _notesController = TextEditingController();
 
   late DateTime _captureStartTime;
   bool _isDemoFixtureLoaded = false;
+  CaptureMode _mode = CaptureMode.liveCapture;
 
   @override
   void initState() {
@@ -53,6 +57,7 @@ class _CaptureViewState extends State<CaptureView> {
             setState(() {
               _photoPath = path;
               _isDemoFixtureLoaded = false;
+              _mode = CaptureMode.liveCapture;
             });
           },
         ),
@@ -66,6 +71,17 @@ class _CaptureViewState extends State<CaptureView> {
       _photoPath = 'assets/sample_data/projector_broken.jpg';
       _voiceDurationSec = 18;
       _isDemoFixtureLoaded = true;
+      _mode = CaptureMode.demoFixture;
+      _transcriptionResult = const TranscriptionResult(
+        status: TranscriptionStatus.transcribed,
+        transcript: 'Lab 2 projector is not powering on. The next class starts in about 20 minutes. We have a spare cable in the equipment room.',
+        language: 'en-US',
+        durationMs: 18000,
+        confidenceState: 'HIGH',
+        runtime: TranscriptionRuntime.prototypeRuntime,
+        source: TranscriptionSource.demoFixture,
+        latencyMs: 1200,
+      );
     });
   }
 
@@ -82,14 +98,18 @@ class _CaptureViewState extends State<CaptureView> {
 
     final now = DateTime.now();
     final actualCaptureDurationMs = now.difference(_captureStartTime).inMilliseconds;
+    final rawText = _notesController.text.trim();
+    final transcript = _transcriptionResult?.transcript ?? (rawText.isNotEmpty ? rawText : null);
 
     final evidencePackage = EvidencePackage(
+      mode: _mode,
       photoPath: _photoPath,
       voicePath: _voicePath,
       voiceDurationSec: _voiceDurationSec,
-      voiceTranscript: _voicePath != null ? null : _notesController.text.trim(),
-      textNotes: _notesController.text.trim().isNotEmpty ? _notesController.text.trim() : null,
+      voiceTranscript: transcript,
+      textNotes: rawText.isNotEmpty ? rawText : null,
       capturedAt: _captureStartTime,
+      captureSessionId: const Uuid().v4().substring(0, 8),
     );
 
     Navigator.of(context).push(
@@ -99,7 +119,7 @@ class _CaptureViewState extends State<CaptureView> {
           modelAdapter: widget.modelAdapter,
           onComplete: (packet) {
             final packetWithActualDuration = packet.copyWith(
-              captureDurationMs: actualCaptureDurationMs > 0 ? actualCaptureDurationMs : 42000,
+              captureDurationMs: actualCaptureDurationMs > 0 ? actualCaptureDurationMs : 35000,
             );
 
             Navigator.of(context).pushReplacement(
@@ -296,30 +316,36 @@ class _CaptureViewState extends State<CaptureView> {
           const SizedBox(height: 8),
           AudioRecorderWidget(
             initialAudioPath: _voicePath,
-            onRecordingComplete: (path, duration) {
+            initialTranscriptionResult: _transcriptionResult,
+            onRecordingComplete: (path, duration, result) {
               setState(() {
                 _voicePath = path;
                 _voiceDurationSec = duration;
+                _transcriptionResult = result;
                 _isDemoFixtureLoaded = false;
+                if (result.isTranscribed && _notesController.text.trim().isEmpty) {
+                  _notesController.text = result.transcript!;
+                }
               });
             },
             onRecordingDeleted: () {
               setState(() {
                 _voicePath = null;
                 _voiceDurationSec = 0;
+                _transcriptionResult = null;
               });
             },
           ),
           const SizedBox(height: 18),
 
-          // 3. Optional Text Notes
-          _buildSectionTitle('3. ADDITIONAL NOTES (OPTIONAL)', Icons.edit_note_outlined),
+          // 3. Spoken Transcript / Context Notes
+          _buildSectionTitle('3. SPOKEN TRANSCRIPT / CONTEXT NOTES', Icons.edit_note_outlined),
           const SizedBox(height: 8),
           TextField(
             controller: _notesController,
             maxLines: 2,
             decoration: InputDecoration(
-              hintText: 'e.g. Next class starts in 20 min, spare cable in room B...',
+              hintText: 'e.g. The keyboard isn\'t working. Please fix it.',
               hintStyle: const TextStyle(fontSize: 13, color: EchoTheme.textTertiary),
               filled: true,
               fillColor: EchoTheme.surfaceColor,

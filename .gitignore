@@ -1,0 +1,18 @@
+# Flutter & Dart
+.dart_tool/
+.flutter-plugins-dependencies
+.pub-cache/
+.pub/
+build/
+*.lock
+
+# Android
+**/local.properties
+.gradle/
+*.iml
+*.ipr
+*.iws
+.idea/
+
+# Binaries
+dist/*.apk

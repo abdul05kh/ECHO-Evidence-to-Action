@@ -28,13 +28,21 @@ class _ProcessingScreenState extends State<ProcessingScreen> {
   Timer? _stopwatchTimer;
   String? _statusError;
 
-  final List<String> _steps = [
-    'Preparing Visual & Audio Evidence',
-    'Extracting Spoken Clues & Transcribing',
-    'Structuring Grounded Action Packet',
-    'Validating Evidence Provenance Links',
-    'Applying Operational Policy Rules',
-  ];
+  List<String> get _steps {
+    final hasTranscript = widget.evidence.voiceTranscript != null && widget.evidence.voiceTranscript!.isNotEmpty;
+    final hasVoice = widget.evidence.voicePath != null;
+    return [
+      'Preparing evidence',
+      hasTranscript
+          ? 'Transcribing voice locally (On-Device STT)'
+          : (hasVoice
+              ? 'Transcription unavailable (Manual context required)'
+              : 'Analyzing captured context'),
+      'Structuring Action Packet',
+      'Validating evidence provenance',
+      'Applying policy rules',
+    ];
+  }
 
   @override
   void initState() {
@@ -127,7 +135,7 @@ class _ProcessingScreenState extends State<ProcessingScreen> {
               ),
               const SizedBox(height: 24),
 
-              Text(
+              const Text(
                 'STRUCTURING WORK PACKET',
                 style: TextStyle(
                   fontSize: 13,
@@ -138,7 +146,7 @@ class _ProcessingScreenState extends State<ProcessingScreen> {
               ),
               const SizedBox(height: 6),
               Text(
-                'Elapsed: ${(_elapsedMs / 1000).toStringAsFixed(1)}s · On-Device Model Pipeline',
+                'Elapsed: ${(_elapsedMs / 1000).toStringAsFixed(1)}s · Prototype Runtime · Evidence Structured',
                 style: const TextStyle(
                   fontSize: 13,
                   color: EchoTheme.textSecondary,

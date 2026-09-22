@@ -6,7 +6,7 @@ class TaskStateMachine {
   static const Map<String, List<String>> _validTransitions = {
     'draft': ['processing', 'needs_review', 'ready'],
     'processing': ['needs_review', 'ready'],
-    'needs_review': ['ready', 'approved'],
+    'needs_review': ['ready'],
     'ready': ['approved', 'needs_review'],
     'approved': ['assigned', 'in_progress'],
     'assigned': ['in_progress', 'blocked'],

@@ -3,11 +3,13 @@ import '../../app/theme.dart';
 
 class StatusPill extends StatelessWidget {
   final String status;
+  final String? customLabel;
   final bool isLarge;
 
   const StatusPill({
     super.key,
     required this.status,
+    this.customLabel,
     this.isLarge = false,
   });
 
@@ -72,6 +74,10 @@ class StatusPill extends StatelessWidget {
         bg = EchoTheme.secondarySurface;
         fg = EchoTheme.textSecondary;
         label = status.toUpperCase();
+    }
+
+    if (customLabel != null) {
+      label = customLabel!;
     }
 
     return Container(
