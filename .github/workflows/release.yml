@@ -1,0 +1,90 @@
+name: ECHO Release & APK Publishing
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build_and_release:
+    name: Build ARM64 APK & Publish Release
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          cache: true
+
+      - name: Install Dependencies
+        working-directory: mobile
+        run: flutter pub get
+
+      - name: Run Tests
+        working-directory: mobile
+        run: flutter test
+
+      - name: Build ARM64 Release APK
+        working-directory: mobile
+        run: flutter build apk --release --target-platform android-arm64 --no-tree-shake-icons
+
+      - name: Package Release Assets
+        run: |
+          mkdir -p dist
+          cp mobile/build/app/outputs/flutter-apk/app-release.apk dist/echo-android-arm64.apk
+          cd dist
+          sha256sum echo-android-arm64.apk > SHA256SUMS.txt
+          cat SHA256SUMS.txt
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: ECHO v1.0.0 Android ARM64
+          tag_name: ${{ github.ref_name }}
+          draft: false
+          prerelease: false
+          generate_release_notes: true
+          files: |
+            dist/echo-android-arm64.apk
+            dist/SHA256SUMS.txt
+          body: |
+            # ECHO v1.0.0 — Android ARM64
+
+            ## Included
+            - Phone-first evidence capture
+            - Real CameraX viewfinder and photo capture
+            - Real microphone recording with AAC-LC audio playback
+            - On-device speech recognition via Android Private Compute Core
+            - Evidence-grounded Action Packet generation
+            - Mandatory human approval gate (`REVIEW & CONFIRM` -> `APPROVE WORK ORDER`)
+            - Deterministic Policy Engine for priority calculation
+            - Task lifecycle state machine with immutable audit trail
+            - Closure evidence verification
+            - Offline-first SQLite persistence (Drift)
+            - Office Kit clipboard and `.echopack.json` desktop handoff boundary
+
+            ## AI Runtime Truth
+            - **On-Device STT**: `VERIFIED` on Android 16 physical device (`arm64-v8a`).
+            - **Local LLM**: `PROTOTYPE_RUNTIME / INTEGRATION SCAFFOLD` — Gemma 4 E2B-it provider abstraction and in-app model management screen implemented; multi-gigabyte neural weight download is optional via settings.
+
+            ## Tested Hardware
+            - **Device**: Android 16 (`arm64-v8a`, 12 GB RAM)
+            - **Rendering**: Impeller Vulkan backend
+
+            ## Assets
+            - `echo-android-arm64.apk`
+            - `SHA256SUMS.txt`
