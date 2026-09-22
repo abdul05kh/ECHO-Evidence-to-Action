@@ -14,7 +14,7 @@
 **Version:** v1.0.0  
 **Architecture:** ARM64 (`arm64-v8a`)  
 **Package:** `com.echo.orchestrator.echo_mobile`  
-**SHA-256:** `ae527ece7ec510e7b4afe38987f92164e066b061ef3a46637610397475ec9e06`
+**SHA-256:** `44f7db4fd089f68cd1e75faa82baaedabf866a65f0f064ee4cf40bd792193f9c`
 
 👉 **[Download Latest Android ARM64 APK](https://github.com/abdul05kh/ECHO-Evidence-to-Action/releases/latest/download/echo-android-arm64.apk)**
 
@@ -93,7 +93,7 @@ To respect user storage and bandwidth, multi-gigabyte neural weights are **never
 1. Open ECHO on your Android device.
 2. Tap the **AI Runtime & Model Status** icon (🧠) in the top AppBar.
 3. Review technical diagnostics (Available RAM, Storage, GPU Backend).
-4. Tap **Download Gemma 4 E2B-it (~1.8 GB)** to download weights directly to app-private storage.
+4. Tap **Download Gemma 4 E2B-it (~2.59 GB)** to download weights directly to app-private storage (requires min 8 GB RAM, 3.20 GB storage).
 5. Once downloaded, ECHO will switch from `PROTOTYPE_RUNTIME` to local neural LLM execution.
 
 ---

@@ -729,13 +729,13 @@ packages:
     source: hosted
     version: "0.7.2"
   record_platform_interface:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
       name: record_platform_interface
-      sha256: "8e56cbe06c6984137fb86132ff03459f29938d927496d9b2d0962e2d6345d488"
+      sha256: "11f8b03ea8a0e279b0e306571dbe0db0202c0b8e866495c9fa1ad2281d5e4c15"
       url: "https://pub.dev"
     source: hosted
-    version: "1.6.0"
+    version: "1.1.0"
   record_use:
     dependency: transitive
     description:
@@ -805,6 +805,30 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.10.2"
+  speech_to_text:
+    dependency: "direct main"
+    description:
+      name: speech_to_text
+      sha256: f2fabd017b5cb07f4e06d496b2d4b957e39534bc848f92b1e6acac80a10f4967
+      url: "https://pub.dev"
+    source: hosted
+    version: "7.5.0"
+  speech_to_text_platform_interface:
+    dependency: transitive
+    description:
+      name: speech_to_text_platform_interface
+      sha256: "7e447356be3074c471223c9d179ef3f822475350b67ca923ec71ab3bf2ede214"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.5.0"
+  speech_to_text_windows:
+    dependency: transitive
+    description:
+      name: speech_to_text_windows
+      sha256: "2d1d10565b23262386b453b33656299608dc7a66784453735d6c1318f13f44d7"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.1"
   sqlite3:
     dependency: "direct main"
     description:
