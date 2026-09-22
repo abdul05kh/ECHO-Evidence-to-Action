@@ -220,6 +220,9 @@ class ActionPacketModel {
   final String confidenceState; // 'Verified', 'High Confidence', 'Needs Review'
   final bool requiresHumanApproval;
   final int? captureDurationMs;
+  final String generationSource; // 'LOCAL_LLM', 'PROTOTYPE_RUNTIME', 'DETERMINISTIC_FALLBACK'
+  final String modelName;
+  final String runtimeMode; // 'LOCAL_DEVICE_RUNTIME', 'PROTOTYPE_RUNTIME', 'DETERMINISTIC_FALLBACK'
   final DateTime createdAt;
   final DateTime updatedAt;
 
@@ -242,6 +245,9 @@ class ActionPacketModel {
     this.confidenceState = 'High Confidence',
     this.requiresHumanApproval = true,
     this.captureDurationMs,
+    this.generationSource = 'PROTOTYPE_RUNTIME',
+    this.modelName = 'ECHO Grounded Model Adapter (Prototype v1.0)',
+    this.runtimeMode = 'PROTOTYPE_RUNTIME',
     required this.createdAt,
     required this.updatedAt,
   });
@@ -265,6 +271,9 @@ class ActionPacketModel {
     String? confidenceState,
     bool? requiresHumanApproval,
     int? captureDurationMs,
+    String? generationSource,
+    String? modelName,
+    String? runtimeMode,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) {
@@ -287,6 +296,9 @@ class ActionPacketModel {
       confidenceState: confidenceState ?? this.confidenceState,
       requiresHumanApproval: requiresHumanApproval ?? this.requiresHumanApproval,
       captureDurationMs: captureDurationMs ?? this.captureDurationMs,
+      generationSource: generationSource ?? this.generationSource,
+      modelName: modelName ?? this.modelName,
+      runtimeMode: runtimeMode ?? this.runtimeMode,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );
@@ -311,6 +323,9 @@ class ActionPacketModel {
     'confidence_state': confidenceState,
     'requires_human_approval': requiresHumanApproval,
     if (captureDurationMs != null) 'capture_duration_ms': captureDurationMs,
+    'generation_source': generationSource,
+    'model_name': modelName,
+    'runtime_mode': runtimeMode,
     'created_at': createdAt.toIso8601String(),
     'updated_at': updatedAt.toIso8601String(),
   };
@@ -344,6 +359,9 @@ class ActionPacketModel {
     confidenceState: json['confidence_state'] ?? 'High Confidence',
     requiresHumanApproval: json['requires_human_approval'] ?? true,
     captureDurationMs: json['capture_duration_ms'],
+    generationSource: json['generation_source'] ?? 'PROTOTYPE_RUNTIME',
+    modelName: json['model_name'] ?? 'ECHO Grounded Model Adapter (Prototype v1.0)',
+    runtimeMode: json['runtime_mode'] ?? 'PROTOTYPE_RUNTIME',
     createdAt: json['created_at'] != null ? DateTime.parse(json['created_at']) : DateTime.now(),
     updatedAt: json['updated_at'] != null ? DateTime.parse(json['updated_at']) : DateTime.now(),
   );
