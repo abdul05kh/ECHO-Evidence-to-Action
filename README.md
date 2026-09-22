@@ -14,8 +14,8 @@
 **Version:** v1.0.1-android-final  
 **Architecture:** ARM64 (`arm64-v8a`)  
 **Package:** `com.echo.orchestrator.echo_mobile`  
-**SHA-256:** `ccfed8f265d696dec51e78332667e3ea99690053e4d21e2ef43fb8f2876bf376`  
-**Size:** 24,110,314 bytes (23.0 MB)
+**SHA-256:** `b51f77778420d01e99843546fae4606c44e89b7eace6817e9f45df398718861c`  
+**Size:** 24,175,738 bytes (23.1 MB)
 
 👉 **[Download Android ARM64 APK (v1.0.1-android-final)](https://github.com/abdul05kh/ECHO-Evidence-to-Action/releases/download/v1.0.1-android-final/echo-android-arm64.apk)**
 
