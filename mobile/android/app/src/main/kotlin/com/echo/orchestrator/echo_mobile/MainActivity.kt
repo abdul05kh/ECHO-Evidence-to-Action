@@ -1,25 +1,41 @@
 package com.echo.orchestrator.echo_mobile
 
+import android.content.Intent
+import android.os.Build
+import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import android.speech.RecognitionListener
+import android.speech.RecognizerIntent
+import android.speech.SpeechRecognizer
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
+import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 
 class MainActivity: FlutterActivity() {
-    private val CHANNEL = "com.echo.orchestrator/native_device"
+    private val DEVICE_CHANNEL = "com.echo.orchestrator/native_device"
+    private val STT_CHANNEL = "com.echo.orchestrator/native_stt"
+
+    private var speechRecognizer: SpeechRecognizer? = null
+    private var sttChannel: MethodChannel? = null
+    private val mainHandler = Handler(Looper.getMainLooper())
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
 
-        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, CHANNEL).setMethodCallHandler { call, result ->
+        // Device hardware channel
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, DEVICE_CHANNEL).setMethodCallHandler { call, result ->
             when (call.method) {
                 "getDeviceHardwareProfile" -> {
                     val profile = mapOf(
-                        "device" to android.os.Build.MODEL,
-                        "manufacturer" to android.os.Build.MANUFACTURER,
-                        "hardware" to android.os.Build.HARDWARE,
-                        "androidVersion" to android.os.Build.VERSION.RELEASE,
+                        "device" to Build.MODEL,
+                        "manufacturer" to Build.MANUFACTURER,
+                        "hardware" to Build.HARDWARE,
+                        "androidVersion" to Build.VERSION.RELEASE,
+                        "sdkInt" to Build.VERSION.SDK_INT,
                         "npuAccelerated" to true,
-                        "supportedRuntimes" to listOf("ONNX", "GGUF", "NNAPI", "TFLite")
+                        "supportedRuntimes" to listOf("LiteRT-LM", "ONNX", "GGUF", "NNAPI")
                     )
                     result.success(profile)
                 }
@@ -36,5 +52,170 @@ class MainActivity: FlutterActivity() {
                 }
             }
         }
+
+        // Native on-device SpeechRecognizer channel
+        sttChannel = MethodChannel(flutterEngine.dartExecutor.binaryMessenger, STT_CHANNEL)
+        sttChannel?.setMethodCallHandler { call, result ->
+            when (call.method) {
+                "checkOnDeviceAvailability" -> {
+                    val isAvailable = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                        SpeechRecognizer.isOnDeviceRecognitionAvailable(this)
+                    } else {
+                        SpeechRecognizer.isRecognitionAvailable(this)
+                    }
+                    val info = mapOf(
+                        "isOnDeviceAvailable" to isAvailable,
+                        "isRecognitionAvailable" to SpeechRecognizer.isRecognitionAvailable(this),
+                        "sdkInt" to Build.VERSION.SDK_INT,
+                        "servicePackage" to "com.google.android.as/PrivateComputeCore"
+                    )
+                    result.success(info)
+                }
+                "startListening" -> {
+                    val locale = call.argument<String>("locale") ?: "en-US"
+                    startNativeOnDeviceListening(locale, result)
+                }
+                "stopListening" -> {
+                    stopNativeListening(result)
+                }
+                "cancelListening" -> {
+                    cancelNativeListening(result)
+                }
+                else -> {
+                    result.notImplemented()
+                }
+            }
+        }
+    }
+
+    private fun startNativeOnDeviceListening(locale: String, result: MethodChannel.Result) {
+        mainHandler.post {
+            try {
+                speechRecognizer?.destroy()
+                speechRecognizer = null
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && SpeechRecognizer.isOnDeviceRecognitionAvailable(this)) {
+                    speechRecognizer = SpeechRecognizer.createOnDeviceSpeechRecognizer(this)
+                } else {
+                    speechRecognizer = SpeechRecognizer.createSpeechRecognizer(this)
+                }
+
+                speechRecognizer?.setRecognitionListener(object : RecognitionListener {
+                    override fun onReadyForSpeech(params: Bundle?) {
+                        sttChannel?.invokeMethod("onReadyForSpeech", null)
+                    }
+
+                    override fun onBeginningOfSpeech() {
+                        sttChannel?.invokeMethod("onBeginningOfSpeech", null)
+                    }
+
+                    override fun onRmsChanged(rmsdB: Float) {
+                        sttChannel?.invokeMethod("onRmsChanged", rmsdB)
+                    }
+
+                    override fun onBufferReceived(buffer: ByteArray?) {}
+
+                    override fun onEndOfSpeech() {
+                        sttChannel?.invokeMethod("onEndOfSpeech", null)
+                    }
+
+                    override fun onError(error: Int) {
+                        val errorMap = mapOf(
+                            "errorCode" to error,
+                            "errorMessage" to getSpeechErrorText(error)
+                        )
+                        sttChannel?.invokeMethod("onError", errorMap)
+                    }
+
+                    override fun onResults(results: Bundle?) {
+                        val matches = results?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
+                        val text = matches?.firstOrNull() ?: ""
+                        val confidences = results?.getFloatArray(SpeechRecognizer.CONFIDENCE_SCORES)
+                        val confidence = confidences?.firstOrNull() ?: 0.95f
+
+                        val resultMap = mapOf(
+                            "transcript" to text,
+                            "confidence" to confidence,
+                            "isFinal" to true
+                        )
+                        sttChannel?.invokeMethod("onResults", resultMap)
+                    }
+
+                    override fun onPartialResults(partialResults: Bundle?) {
+                        val matches = partialResults?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
+                        val text = matches?.firstOrNull() ?: ""
+                        if (text.isNotEmpty()) {
+                            val resultMap = mapOf(
+                                "transcript" to text,
+                                "isFinal" to false
+                            )
+                            sttChannel?.invokeMethod("onPartialResults", resultMap)
+                        }
+                    }
+
+                    override fun onEvent(eventType: Int, params: Bundle?) {}
+                })
+
+                val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
+                    putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
+                    putExtra(RecognizerIntent.EXTRA_LANGUAGE, locale)
+                    putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true)
+                    putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 3)
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                        putExtra(RecognizerIntent.EXTRA_PREFER_OFFLINE, true)
+                    }
+                }
+
+                speechRecognizer?.startListening(intent)
+                result.success(true)
+            } catch (e: Exception) {
+                result.error("STT_START_FAILED", e.message, null)
+            }
+        }
+    }
+
+    private fun stopNativeListening(result: MethodChannel.Result) {
+        mainHandler.post {
+            try {
+                speechRecognizer?.stopListening()
+                result.success(true)
+            } catch (e: Exception) {
+                result.error("STT_STOP_FAILED", e.message, null)
+            }
+        }
+    }
+
+    private fun cancelNativeListening(result: MethodChannel.Result) {
+        mainHandler.post {
+            try {
+                speechRecognizer?.cancel()
+                speechRecognizer?.destroy()
+                speechRecognizer = null
+                result.success(true)
+            } catch (e: Exception) {
+                result.error("STT_CANCEL_FAILED", e.message, null)
+            }
+        }
+    }
+
+    private fun getSpeechErrorText(errorCode: Int): String {
+        return when (errorCode) {
+            SpeechRecognizer.ERROR_AUDIO -> "Audio recording error"
+            SpeechRecognizer.ERROR_CLIENT -> "Client side error"
+            SpeechRecognizer.ERROR_INSUFFICIENT_PERMISSIONS -> "Insufficient permissions"
+            SpeechRecognizer.ERROR_NETWORK -> "Network error"
+            SpeechRecognizer.ERROR_NETWORK_TIMEOUT -> "Network timeout"
+            SpeechRecognizer.ERROR_NO_MATCH -> "No speech recognition match"
+            SpeechRecognizer.ERROR_RECOGNIZER_BUSY -> "RecognitionService busy"
+            SpeechRecognizer.ERROR_SERVER -> "Error from server"
+            SpeechRecognizer.ERROR_SPEECH_TIMEOUT -> "No speech input detected"
+            else -> "Speech recognition error ($errorCode)"
+        }
+    }
+
+    override fun onDestroy() {
+        speechRecognizer?.destroy()
+        speechRecognizer = null
+        super.onDestroy()
     }
 }

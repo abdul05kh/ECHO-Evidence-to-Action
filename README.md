@@ -14,7 +14,7 @@
 **Version:** v1.0.0  
 **Architecture:** ARM64 (`arm64-v8a`)  
 **Package:** `com.echo.orchestrator.echo_mobile`  
-**SHA-256:** `44f7db4fd089f68cd1e75faa82baaedabf866a65f0f064ee4cf40bd792193f9c`
+**SHA-256:** `cde781f9f6a8be0a701d55422e484822e53e99919357bd06d99f88634903bc2f`
 
 👉 **[Download Latest Android ARM64 APK](https://github.com/abdul05kh/ECHO-Evidence-to-Action/releases/latest/download/echo-android-arm64.apk)**
 
@@ -28,7 +28,7 @@ Frontline operational reporting is broken: verbal reports lose context, unstruct
 
 ECHO solves this at the edge:
 1. **Real Evidence Capture**: The worker snaps a photo and speaks naturally into the phone's microphone.
-2. **Offline Speech-To-Text**: Speech is transcribed directly on the device using Android's on-device Private Compute Core (`android.speech.RecognitionService`) without sending audio to the cloud.
+2. **Offline Speech-To-Text**: Speech is transcribed directly on the device using Android's native on-device Private Compute Core (`android.speech.SpeechRecognizer.createOnDeviceSpeechRecognizer`) without sending audio to the cloud.
 3. **Structured AI Action Packet**: The local AI parses evidence into an evidence-grounded **Action Packet** (Observations, Inferences, Missing Information, and Recommended Actions).
 4. **Mandatory Human Gate**: Operators review and confirm the packet before approving it as a formal work order (`REVIEW & CONFIRM` $\to$ `APPROVE WORK ORDER`).
 5. **Deterministic Policy & Provenance**: Priority is calculated by a deterministic safety and urgency engine, while every fact is bidirectionally linked to its source photo or voice excerpt.
@@ -41,15 +41,15 @@ ECHO solves this at the edge:
 
 | Capability | Status | Notes |
 |---|:---:|---|
-| **Camera Capture** | **VERIFIED** | Real-time Android CameraX viewfinder, photo capture, and local storage |
-| **Voice Recording** | **VERIFIED** | Real microphone capture with AAC-LC encoding and in-app audio playback |
-| **On-Device STT** | **VERIFIED** | Live offline speech recognition via Android Private Compute Core (`LOCAL_DEVICE_RUNTIME`) |
-| **Action Packet Structuring** | **VERIFIED** | Evidence-grounded domain routing across IT, Electrical, HVAC, Plumbing, Equipment |
-| **Grounding & Provenance** | **VERIFIED** | Zero hallucinated root causes; interactive modal tracing claims to media assets |
-| **Offline Core Workflow** | **VERIFIED** | Capture $\to$ STT $\to$ Packet $\to$ Approval $\to$ Task $\to$ Checklist runs with zero network (Airplane Mode) |
-| **Local SQLite Database** | **VERIFIED** | Drift/SQLite persistence survives app termination and device restart |
-| **Local LLM Engine** | **PROTOTYPE / SCAFFOLD** | `LocalLlmProvider` and in-app Gemma 4 E2B-it download/setup path implemented; weight download optional |
-| **Office Kit Handoff** | **ARCHITECTURE VERIFIED** | `.echopack.json` and Markdown clipboard serialization verified; pending live event bridge environment |
+| **Camera Capture** | **PHYSICALLY VERIFIED** | Real-time Android CameraX viewfinder, photo capture, and local storage |
+| **Voice Recording** | **PHYSICALLY VERIFIED** | Real microphone capture with AAC-LC encoding and in-app audio playback |
+| **On-Device STT** | **IMPLEMENTED & BRIDGED** | Native Android `createOnDeviceSpeechRecognizer` MethodChannel bridge |
+| **Action Packet Structuring** | **PHYSICALLY VERIFIED** | Evidence-grounded domain routing across IT, Electrical, HVAC, Plumbing, Equipment |
+| **Grounding & Provenance** | **PHYSICALLY VERIFIED** | Zero hallucinated root causes; interactive modal tracing claims to media assets |
+| **Offline Core Workflow** | **PHYSICALLY VERIFIED** | Capture $\to$ Packet $\to$ Approval $\to$ Task $\to$ Closure runs offline (Airplane Mode) |
+| **Local SQLite Database** | **PHYSICALLY VERIFIED** | Drift/SQLite persistence survives app termination and device restart |
+| **Local LLM Engine** | **ARCHITECTURE VERIFIED** | Genuine streaming downloader for official Gemma 4 E2B-it 2.59 GB artifact; `PROTOTYPE_RUNTIME` fallback active until downloaded |
+| **Office Kit Handoff** | **ARCHITECTURE VERIFIED** | `.echopack.json` and Markdown clipboard serialization verified; live event bridge pending environment |
 
 ---
 

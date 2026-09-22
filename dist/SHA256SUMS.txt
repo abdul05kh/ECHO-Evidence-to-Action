@@ -1,1 +1,1 @@
-﻿44f7db4fd089f68cd1e75faa82baaedabf866a65f0f064ee4cf40bd792193f9c  echo-android-arm64.apk
+﻿cde781f9f6a8be0a701d55422e484822e53e99919357bd06d99f88634903bc2f  echo-android-arm64.apk

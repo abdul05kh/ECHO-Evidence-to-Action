@@ -62,6 +62,9 @@ class _AiRuntimeScreenState extends State<AiRuntimeScreen> {
       onDone: () {
         _loadRuntimeInfo();
       },
+      onError: (err) {
+        _loadRuntimeInfo();
+      },
     );
   }
 
@@ -88,6 +91,47 @@ class _AiRuntimeScreenState extends State<AiRuntimeScreen> {
           : ListView(
               padding: const EdgeInsets.all(16),
               children: [
+                // Error Alert Banner if failed
+                if (_info?.status == LocalLlmStatus.failed && _info?.lastError != null) ...[
+                  Container(
+                    margin: const EdgeInsets.only(bottom: 16),
+                    padding: const EdgeInsets.all(14),
+                    decoration: BoxDecoration(
+                      color: EchoTheme.dangerRedLight,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: EchoTheme.dangerRed.withValues(alpha: 0.4)),
+                    ),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Icon(Icons.error_outline_rounded, color: EchoTheme.dangerRed, size: 20),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                'DOWNLOAD / INITIALIZATION FAILED',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w800,
+                                  color: EchoTheme.dangerRed,
+                                  letterSpacing: 0.3,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                _info!.lastError!,
+                                style: const TextStyle(fontSize: 12, color: EchoTheme.textPrimary),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+
                 // Header Card
                 Container(
                   padding: const EdgeInsets.all(16),
@@ -166,19 +210,19 @@ class _AiRuntimeScreenState extends State<AiRuntimeScreen> {
                       ),
                       _buildSpecRow(
                         'Model Load Time',
-                        _info?.modelLoadLatencyMs != null ? '${_info!.modelLoadLatencyMs} ms' : 'Not measured',
+                        _info?.modelLoadLatencyMs != null ? '${_info!.modelLoadLatencyMs} ms' : 'NOT MEASURED',
                       ),
                       _buildSpecRow(
                         'First Token Latency',
-                        _info?.firstTokenLatencyMs != null ? '${_info!.firstTokenLatencyMs} ms' : 'Not measured',
+                        _info?.firstTokenLatencyMs != null ? '${_info!.firstTokenLatencyMs} ms' : 'NOT MEASURED',
                       ),
                       _buildSpecRow(
                         'Total Generation',
-                        _info?.totalGenerationLatencyMs != null ? '${_info!.totalGenerationLatencyMs} ms' : 'Not measured',
+                        _info?.totalGenerationLatencyMs != null ? '${_info!.totalGenerationLatencyMs} ms' : 'NOT MEASURED',
                       ),
                       _buildSpecRow(
                         'Average Latency',
-                        _info?.averageLatencyMs != null ? '${_info!.averageLatencyMs} ms' : 'Not measured',
+                        _info?.averageLatencyMs != null ? '${_info!.averageLatencyMs} ms' : 'NOT MEASURED',
                       ),
                       _buildSpecRow('Device Architecture', _info?.isArm64 == true ? 'ARM64 (Qualcomm Snapdragon)' : 'Generic ARM'),
                       _buildSpecRow('Available System RAM', '${_info?.availableRamMb ?? 11200} MB / 12 GB (Min: 8 GB)'),
@@ -188,7 +232,7 @@ class _AiRuntimeScreenState extends State<AiRuntimeScreen> {
                       ),
                       _buildSpecRow(
                         'Inference Requirement',
-                        'Offline (0 KB network required)',
+                        _info?.status == LocalLlmStatus.ready ? 'Offline (0 KB network)' : 'Offline once installed',
                       ),
                       _buildSpecRow(
                         'Last Error',
@@ -200,7 +244,9 @@ class _AiRuntimeScreenState extends State<AiRuntimeScreen> {
                 const SizedBox(height: 16),
 
                 // Download / Action Card
-                if (_info?.status == LocalLlmStatus.downloading || _info?.status == LocalLlmStatus.installing) ...[
+                if (_info?.status == LocalLlmStatus.downloading || 
+                    _info?.status == LocalLlmStatus.verifying || 
+                    _info?.status == LocalLlmStatus.installing) ...[
                   Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
@@ -220,9 +266,11 @@ class _AiRuntimeScreenState extends State<AiRuntimeScreen> {
                             ),
                             const SizedBox(width: 10),
                             Text(
-                              _info?.status == LocalLlmStatus.installing
-                                  ? 'Installing & Initializing Weights...'
-                                  : 'Downloading Model Weights... ${(_progress * 100).toInt()}%',
+                              _info?.status == LocalLlmStatus.verifying
+                                  ? 'Verifying Model Checksum...'
+                                  : (_info?.status == LocalLlmStatus.installing
+                                      ? 'Installing & Initializing Weights...'
+                                      : 'Downloading Gemma 4 E2B-it... ${(_progress * 100).toInt()}%'),
                               style: const TextStyle(
                                 fontSize: 13,
                                 fontWeight: FontWeight.w700,
@@ -233,13 +281,13 @@ class _AiRuntimeScreenState extends State<AiRuntimeScreen> {
                         ),
                         const SizedBox(height: 10),
                         LinearProgressIndicator(
-                          value: _progress,
+                          value: _progress > 0 ? _progress : null,
                           backgroundColor: Colors.white,
                           color: EchoTheme.actionBlue,
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          '${((_progress * 2.59)).toStringAsFixed(2)} GB of 2.59 GB downloaded to app-private storage...',
+                          _info?.formattedDownloadedProgress ?? 'Streaming artifact from LiteRT community...',
                           style: const TextStyle(fontSize: 11.5, color: EchoTheme.textSecondary),
                         ),
                         const SizedBox(height: 12),
@@ -342,6 +390,8 @@ class _AiRuntimeScreenState extends State<AiRuntimeScreen> {
         return const StatusPill(status: 'completed', customLabel: 'READY');
       case LocalLlmStatus.downloading:
         return const StatusPill(status: 'processing', customLabel: 'DOWNLOADING');
+      case LocalLlmStatus.verifying:
+        return const StatusPill(status: 'processing', customLabel: 'VERIFYING');
       case LocalLlmStatus.installing:
         return const StatusPill(status: 'processing', customLabel: 'INSTALLING');
       case LocalLlmStatus.initializing:
