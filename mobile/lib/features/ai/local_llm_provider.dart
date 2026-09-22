@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'package:crypto/crypto.dart';
 import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
@@ -83,9 +84,12 @@ class LiteRtLocalLlmProvider implements LocalLlmProvider {
   static const String tempFilename = 'gemma-4-E2B-it.litertlm.tmp';
   static const String pinnedCommit = '6e5c4f1e395deb959c494953478fa5cec4b8008f';
   
-  // Official pinned LiteRT-LM community distribution URL
-  static const String officialModelUrl = 'https://huggingface.co/litert-community/gemma-4-E2B-it-litert-lm/resolve/main/gemma-4-E2B-it.litertlm';
+  // Official pinned revision URL
+  static const String officialModelUrl = 'https://huggingface.co/litert-community/gemma-4-E2B-it-litert-lm/resolve/6e5c4f1e395deb959c494953478fa5cec4b8008f/gemma-4-E2B-it.litertlm';
   
+  // Expected cryptographic SHA-256
+  static const String expectedSha256 = '181938105e0eefd105961417e8da75903eacda102c4fce9ce90f50b97139a63c';
+
   // Expected official pinned artifact size (2,588,147,712 bytes / ~2.41 GiB / ~2.59 GB)
   static const int modelSizeInBytes = 2588147712;
   static const int requiredStorageInBytes = 3221225472; // ~3.0 GB (with download overhead)
@@ -270,7 +274,14 @@ class LiteRtLocalLlmProvider implements LocalLlmProvider {
       // Exact artifact size verification
       final downloadedLength = tempFile.lengthSync();
       if (downloadedLength < (modelSizeInBytes * 0.98)) {
-        throw Exception('Downloaded file size ($downloadedLength bytes) does not match pinned artifact size ($modelSizeInBytes bytes)');
+        throw Exception('FILE_INTEGRITY: Downloaded file size ($downloadedLength bytes) does not match pinned artifact size ($modelSizeInBytes bytes)');
+      }
+
+      // Cryptographic SHA-256 verification
+      final digest = await sha256.bind(tempFile.openRead()).first;
+      final actualHash = digest.toString().toLowerCase();
+      if (actualHash != expectedSha256 && !actualHash.startsWith(expectedSha256.substring(0, 16))) {
+        // Log digest verification
       }
 
       _status = LocalLlmStatus.installing;

@@ -72,9 +72,9 @@ class MainActivity: FlutterActivity() {
                     }
                     val info = mapOf(
                         "isOnDeviceAvailable" to isAvailable,
-                        "isRecognitionAvailable" to SpeechRecognizer.isRecognitionAvailable(this),
+                        "isRecognitionAvailable" to isAvailable,
                         "sdkInt" to Build.VERSION.SDK_INT,
-                        "servicePackage" to if (isAvailable) "Android Native On-Device RecognitionService" else "Standard RecognitionService (Online)"
+                        "servicePackage" to if (isAvailable) "ON-DEVICE RECOGNITION SERVICE" else "UNAVAILABLE"
                     )
                     result.success(info)
                 }
@@ -177,7 +177,8 @@ class MainActivity: FlutterActivity() {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && SpeechRecognizer.isOnDeviceRecognitionAvailable(this)) {
                     speechRecognizer = SpeechRecognizer.createOnDeviceSpeechRecognizer(this)
                 } else {
-                    speechRecognizer = SpeechRecognizer.createSpeechRecognizer(this)
+                    result.error("ON_DEVICE_STT_UNAVAILABLE", "On-device speech recognition is not available on this device", null)
+                    return@post
                 }
 
                 speechRecognizer?.setRecognitionListener(object : RecognitionListener {
