@@ -50,7 +50,8 @@ class _CameraScreenState extends State<CameraScreen> {
     }
   }
 
-  Future<void> _setupCameraController(CameraDescription cameraDescription) async {
+  Future<void> _setupCameraController(
+      CameraDescription cameraDescription) async {
     if (_controller != null) {
       await _controller!.dispose();
     }
@@ -81,7 +82,9 @@ class _CameraScreenState extends State<CameraScreen> {
   }
 
   Future<void> _takePicture() async {
-    if (_controller == null || !_controller!.value.isInitialized || _isTakingPhoto) {
+    if (_controller == null ||
+        !_controller!.value.isInitialized ||
+        _isTakingPhoto) {
       return;
     }
 
@@ -92,7 +95,8 @@ class _CameraScreenState extends State<CameraScreen> {
 
       final XFile photo = await _controller!.takePicture();
       final docsDir = await getApplicationDocumentsDirectory();
-      final savedPath = p.join(docsDir.path, 'evidence_${const Uuid().v4().substring(0, 8)}.jpg');
+      final savedPath = p.join(
+          docsDir.path, 'evidence_${const Uuid().v4().substring(0, 8)}.jpg');
 
       await File(photo.path).copy(savedPath);
 
@@ -119,7 +123,8 @@ class _CameraScreenState extends State<CameraScreen> {
 
   void _toggleFlash() {
     if (_controller == null) return;
-    final nextMode = _flashMode == FlashMode.off ? FlashMode.torch : FlashMode.off;
+    final nextMode =
+        _flashMode == FlashMode.off ? FlashMode.torch : FlashMode.off;
     _controller!.setFlashMode(nextMode);
     setState(() {
       _flashMode = nextMode;
@@ -141,19 +146,23 @@ class _CameraScreenState extends State<CameraScreen> {
         foregroundColor: Colors.white,
         title: const Text(
           'Capture Visual Evidence',
-          style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w600),
+          style: TextStyle(
+              color: Colors.white, fontSize: 16, fontWeight: FontWeight.w600),
         ),
         actions: [
           IconButton(
             icon: Icon(
-              _flashMode == FlashMode.torch ? Icons.flash_on_rounded : Icons.flash_off_rounded,
+              _flashMode == FlashMode.torch
+                  ? Icons.flash_on_rounded
+                  : Icons.flash_off_rounded,
               color: Colors.white,
             ),
             onPressed: _toggleFlash,
           ),
           if (_cameras != null && _cameras!.length > 1)
             IconButton(
-              icon: const Icon(Icons.flip_camera_android_rounded, color: Colors.white),
+              icon: const Icon(Icons.flip_camera_android_rounded,
+                  color: Colors.white),
               onPressed: _switchCamera,
             ),
           const SizedBox(width: 8),
@@ -166,7 +175,8 @@ class _CameraScreenState extends State<CameraScreen> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(Icons.videocam_off_rounded, size: 48, color: EchoTheme.dangerRed),
+                    const Icon(Icons.videocam_off_rounded,
+                        size: 48, color: EchoTheme.dangerRed),
                     const SizedBox(height: 12),
                     Text(
                       _errorMessage!,
@@ -183,7 +193,8 @@ class _CameraScreenState extends State<CameraScreen> {
               ),
             )
           : !_isInitialized
-              ? const Center(child: CircularProgressIndicator(color: EchoTheme.accentGold))
+              ? const Center(
+                  child: CircularProgressIndicator(color: EchoTheme.accentGold))
               : Stack(
                   fit: StackFit.expand,
                   children: [
@@ -196,7 +207,9 @@ class _CameraScreenState extends State<CameraScreen> {
                         width: MediaQuery.of(context).size.width * 0.85,
                         height: MediaQuery.of(context).size.width * 0.85,
                         decoration: BoxDecoration(
-                          border: Border.all(color: Colors.white.withValues(alpha: 0.6), width: 1.5),
+                          border: Border.all(
+                              color: Colors.white.withValues(alpha: 0.6),
+                              width: 1.5),
                           borderRadius: BorderRadius.circular(16),
                         ),
                       ),
@@ -225,8 +238,10 @@ class _CameraScreenState extends State<CameraScreen> {
                                 shape: BoxShape.circle,
                               ),
                               child: _isTakingPhoto
-                                  ? const CircularProgressIndicator(color: Colors.white)
-                                  : const Icon(Icons.camera_alt_rounded, color: EchoTheme.textPrimary, size: 32),
+                                  ? const CircularProgressIndicator(
+                                      color: Colors.white)
+                                  : const Icon(Icons.camera_alt_rounded,
+                                      color: EchoTheme.textPrimary, size: 32),
                             ),
                           ),
                         ),

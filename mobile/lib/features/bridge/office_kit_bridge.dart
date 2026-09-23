@@ -2,6 +2,20 @@ import 'dart:convert';
 import 'package:flutter/services.dart';
 import '../packet/domain/action_packet.dart';
 
+class BridgeResult {
+  final bool success;
+  final String message;
+  final String? payload;
+
+  const BridgeResult({
+    required this.success,
+    required this.message,
+    this.payload,
+  });
+}
+
+/// Office Kit Bridge handles cross-device payload serializations, markdown clipboard handoffs,
+/// CSV exports, and `.echopack.json` imports.
 class OfficeKitBridge {
   /// Generates machine-readable JSON packet for laptop import
   static String exportEchoPacketJson(ActionPacketModel packet) {
@@ -19,8 +33,10 @@ class OfficeKitBridge {
       'summary': packet.summary,
       'observations': packet.observations.map((o) => o.toJson()).toList(),
       'inferences': packet.inferences.map((i) => i.toJson()).toList(),
-      'missing_information': packet.missingInformation.map((m) => m.toJson()).toList(),
-      'suggested_actions': packet.suggestedActions.map((s) => s.toJson()).toList(),
+      'missing_information':
+          packet.missingInformation.map((m) => m.toJson()).toList(),
+      'suggested_actions':
+          packet.suggestedActions.map((s) => s.toJson()).toList(),
       'checklist': packet.checklist.map((c) => c.toJson()).toList(),
       'confidence_state': packet.confidenceState,
       'capture_duration_ms': packet.captureDurationMs,
@@ -35,7 +51,8 @@ class OfficeKitBridge {
     final buffer = StringBuffer();
     buffer.writeln('# ECHO ACTION PACKET — ${packet.id}');
     buffer.writeln('**Title:** ${packet.title}');
-    buffer.writeln('**Category:** ${packet.category.toUpperCase()} | **Priority:** ${packet.priority.toUpperCase()}');
+    buffer.writeln(
+        '**Category:** ${packet.category.toUpperCase()} | **Priority:** ${packet.priority.toUpperCase()}');
     buffer.writeln('**Policy Reason:** ${packet.priorityReason}');
     buffer.writeln('**Status:** ${packet.status.toUpperCase()}');
     buffer.writeln('\n## Summary\n${packet.summary}');
@@ -51,13 +68,49 @@ class OfficeKitBridge {
     for (final c in packet.checklist) {
       buffer.writeln('- [${c.isCompleted ? "x" : " "}] ${c.text}');
     }
-    buffer.writeln('\n---\n*Captured once. Structured locally. Approved by human.*');
+    buffer.writeln(
+        '\n---\n*Captured once. Structured locally. Approved by human.*');
     return buffer.toString();
   }
 
-  /// Copies packet to Android/system clipboard for instant Office Kit sync
-  static Future<void> copyToClipboard(ActionPacketModel packet) async {
-    final jsonContent = exportEchoPacketJson(packet);
-    await Clipboard.setData(ClipboardData(text: jsonContent));
+  /// Exports a list of work orders into CSV tabular format
+  static String exportToCsv(List<ActionPacketModel> packets) {
+    final buffer = StringBuffer();
+    buffer.writeln('ID,Title,Category,Priority,Status,Created At,Summary');
+    for (final p in packets) {
+      final safeTitle = '"${p.title.replaceAll('"', '""')}"';
+      final safeSummary = '"${p.summary.replaceAll('"', '""')}"';
+      buffer.writeln(
+          '${p.id},$safeTitle,${p.category},${p.priority},${p.status},${p.createdAt.toIso8601String()},$safeSummary');
+    }
+    return buffer.toString();
+  }
+
+  /// Parses incoming `.echopack.json` payload string back into ActionPacketModel
+  static ActionPacketModel? importEchoPack(String jsonString) {
+    try {
+      final Map<String, dynamic> data = json.decode(jsonString);
+      return ActionPacketModel.fromJson(data);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  /// Copies packet to system clipboard for instant Office Kit sync with safe exception handling
+  static Future<BridgeResult> copyToClipboard(ActionPacketModel packet) async {
+    try {
+      final jsonContent = exportEchoPacketJson(packet);
+      await Clipboard.setData(ClipboardData(text: jsonContent));
+      return BridgeResult(
+        success: true,
+        message: 'Payload copied to clipboard successfully',
+        payload: jsonContent,
+      );
+    } catch (e) {
+      return BridgeResult(
+        success: false,
+        message: 'Failed to access platform clipboard: $e',
+      );
+    }
   }
 }

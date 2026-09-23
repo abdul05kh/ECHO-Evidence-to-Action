@@ -16,6 +16,7 @@ import 'package:flutter/material.dart';
 /// Warning: #D97706 (Accessible Amber)
 /// Danger: #DC2626 (Accessible Red)
 class EchoTheme {
+  static const Color primaryDark = Color(0xFF0F172A);
   static const Color canvasColor = Color(0xFFF7F9FC);
   static const Color surfaceColor = Color(0xFFFFFFFF);
   static const Color secondarySurface = Color(0xFFF1F5F9);

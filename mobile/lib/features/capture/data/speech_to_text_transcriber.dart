@@ -5,8 +5,9 @@ import 'package:flutter/services.dart';
 import '../domain/audio_transcriber.dart';
 
 class SpeechToTextTranscriber implements AudioTranscriber {
-  static const MethodChannel _channel = MethodChannel('com.echo.orchestrator/native_stt');
-  
+  static const MethodChannel _channel =
+      MethodChannel('com.echo.orchestrator/native_stt');
+
   bool _isInitialized = false;
   bool _isOnDeviceAvailable = false;
   String _currentRecognizedWords = '';
@@ -71,14 +72,17 @@ class SpeechToTextTranscriber implements AudioTranscriber {
   }
 
   /// Starts listening using Android On-Device SpeechRecognizer
-  Future<bool> startListening({required Function(String words) onPartialResult, String locale = 'en-US'}) async {
+  Future<bool> startListening(
+      {required Function(String words) onPartialResult,
+      String locale = 'en-US'}) async {
     await initialize();
     _currentRecognizedWords = '';
     _onPartialCallback = onPartialResult;
     _finalCompleter = Completer<String>();
 
     try {
-      final ok = await _channel.invokeMethod<bool>('startListening', {'locale': locale});
+      final ok = await _channel
+          .invokeMethod<bool>('startListening', {'locale': locale});
       return ok == true;
     } catch (e) {
       debugPrint('Error starting native STT: $e');
@@ -137,6 +141,7 @@ class SpeechToTextTranscriber implements AudioTranscriber {
         engine: 'ON-DEVICE RECOGNITION SERVICE',
       );
     }
-    return TranscriptionResult.unavailable(reason: 'OFFLINE_FILE_TRANSCRIPTION_UNSUPPORTED');
+    return TranscriptionResult.unavailable(
+        reason: 'OFFLINE_FILE_TRANSCRIPTION_UNSUPPORTED');
   }
 }

@@ -12,7 +12,9 @@ import '../data/speech_to_text_transcriber.dart';
 import '../domain/audio_transcriber.dart';
 
 class AudioRecorderWidget extends StatefulWidget {
-  final Function(String path, int durationSec, TranscriptionResult transcriptionResult) onRecordingComplete;
+  final Function(
+          String path, int durationSec, TranscriptionResult transcriptionResult)
+      onRecordingComplete;
   final VoidCallback onRecordingDeleted;
   final String? initialAudioPath;
   final TranscriptionResult? initialTranscriptionResult;
@@ -75,7 +77,8 @@ class _AudioRecorderWidgetState extends State<AudioRecorderWidget> {
     try {
       if (await _audioRecorder.hasPermission()) {
         final docsDir = await getApplicationDocumentsDirectory();
-        final path = p.join(docsDir.path, 'voice_${const Uuid().v4().substring(0, 8)}.m4a');
+        final path = p.join(
+            docsDir.path, 'voice_${const Uuid().v4().substring(0, 8)}.m4a');
 
         setState(() {
           _isRecording = true;
@@ -128,7 +131,8 @@ class _AudioRecorderWidgetState extends State<AudioRecorderWidget> {
         debugPrint('Audio recorder stop warning: $e');
       }
 
-      final result = await _transcriber.stopListening(durationMs: _recordDuration * 1000);
+      final result =
+          await _transcriber.stopListening(durationMs: _recordDuration * 1000);
 
       // Fallback path if path was not returned by recorder but was specified
       final finalPath = path ?? _audioPath;
@@ -207,7 +211,9 @@ class _AudioRecorderWidgetState extends State<AudioRecorderWidget> {
                       shape: BoxShape.circle,
                     ),
                     child: Icon(
-                      _isPlaying ? Icons.pause_rounded : Icons.play_arrow_rounded,
+                      _isPlaying
+                          ? Icons.pause_rounded
+                          : Icons.play_arrow_rounded,
                       color: EchoTheme.actionBlue,
                       size: 20,
                     ),
@@ -231,9 +237,13 @@ class _AudioRecorderWidgetState extends State<AudioRecorderWidget> {
                           ),
                           const SizedBox(width: 8),
                           if (isTranscribed)
-                            const StatusPill(status: 'transcribed', customLabel: 'TRANSCRIBED')
+                            const StatusPill(
+                                status: 'transcribed',
+                                customLabel: 'TRANSCRIBED')
                           else
-                            const StatusPill(status: 'needs_review', customLabel: 'TRANSCRIPTION UNAVAILABLE'),
+                            const StatusPill(
+                                status: 'needs_review',
+                                customLabel: 'TRANSCRIPTION UNAVAILABLE'),
                         ],
                       ),
                       const SizedBox(height: 3),
@@ -248,7 +258,8 @@ class _AudioRecorderWidgetState extends State<AudioRecorderWidget> {
                   ),
                 ),
                 IconButton(
-                  icon: const Icon(Icons.delete_outline_rounded, size: 20, color: EchoTheme.dangerRed),
+                  icon: const Icon(Icons.delete_outline_rounded,
+                      size: 20, color: EchoTheme.dangerRed),
                   onPressed: _deleteRecording,
                   tooltip: 'Delete Voice Note',
                 ),
@@ -258,7 +269,8 @@ class _AudioRecorderWidgetState extends State<AudioRecorderWidget> {
               const SizedBox(height: 10),
               Container(
                 width: double.infinity,
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                 decoration: BoxDecoration(
                   color: EchoTheme.secondarySurface,
                   borderRadius: BorderRadius.circular(8),
@@ -279,7 +291,8 @@ class _AudioRecorderWidgetState extends State<AudioRecorderWidget> {
                     const SizedBox(height: 4),
                     const Row(
                       children: [
-                        Icon(Icons.memory_rounded, size: 12, color: EchoTheme.textTertiary),
+                        Icon(Icons.memory_rounded,
+                            size: 12, color: EchoTheme.textTertiary),
                         SizedBox(width: 4),
                         Text(
                           'Runtime: LOCAL DEVICE RUNTIME',
@@ -338,9 +351,12 @@ class _AudioRecorderWidgetState extends State<AudioRecorderWidget> {
                   onPressed: _stopRecording,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: EchoTheme.dangerRed,
-                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                   ),
-                  child: const Text('STOP', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700)),
+                  child: const Text('STOP',
+                      style:
+                          TextStyle(fontSize: 12, fontWeight: FontWeight.w700)),
                 ),
               ],
             ),

@@ -26,15 +26,20 @@ class Evidences extends Table {
 // Action Packets Table: Persists generated and approved structured work packets
 class ActionPackets extends Table {
   TextColumn get id => text()();
-  TextColumn get workspaceId => text().withDefault(const Constant('ws_default'))();
+  TextColumn get workspaceId =>
+      text().withDefault(const Constant('ws_default'))();
   IntColumn get version => integer().withDefault(const Constant(1))();
-  TextColumn get status => text().withDefault(const Constant('draft'))(); // draft, processing, needs_review, ready, approved
+  TextColumn get status => text().withDefault(const Constant(
+      'draft'))(); // draft, processing, needs_review, ready, approved
   TextColumn get title => text()();
-  TextColumn get category => text()(); // equipment, facility, electrical, plumbing, safety, other
+  TextColumn get category =>
+      text()(); // equipment, facility, electrical, plumbing, safety, other
   TextColumn get priority => text()(); // critical, high, medium, low
   TextColumn get summary => text()();
-  TextColumn get payloadJson => text()(); // Full JSON of observations, inferences, checklist, etc.
-  BoolColumn get requiresHumanApproval => boolean().withDefault(const Constant(true))();
+  TextColumn get payloadJson =>
+      text()(); // Full JSON of observations, inferences, checklist, etc.
+  BoolColumn get requiresHumanApproval =>
+      boolean().withDefault(const Constant(true))();
   IntColumn get captureDurationMs => integer().nullable()();
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
   DateTimeColumn get updatedAt => dateTime().withDefault(currentDateAndTime)();
@@ -46,9 +51,11 @@ class ActionPackets extends Table {
 // Tasks Table: Persists approved active, completed, or reopened work orders
 class Tasks extends Table {
   TextColumn get id => text()();
-  TextColumn get workspaceId => text().withDefault(const Constant('ws_default'))();
+  TextColumn get workspaceId =>
+      text().withDefault(const Constant('ws_default'))();
   TextColumn get packetId => text()();
-  TextColumn get status => text().withDefault(const Constant('approved'))(); // approved, assigned, in_progress, blocked, completed, reopened
+  TextColumn get status => text().withDefault(const Constant(
+      'approved'))(); // approved, assigned, in_progress, blocked, completed, reopened
   TextColumn get priority => text()();
   TextColumn get title => text()();
   TextColumn get summary => text()();
@@ -79,8 +86,10 @@ class ChecklistItems extends Table {
 class TaskEvents extends Table {
   TextColumn get id => text()();
   TextColumn get taskId => text()();
-  TextColumn get actorId => text().withDefault(const Constant('usr_operator'))();
-  TextColumn get eventType => text()(); // created, approved, assigned, status_changed, checklist_updated, closure_added, reopened
+  TextColumn get actorId =>
+      text().withDefault(const Constant('usr_operator'))();
+  TextColumn get eventType =>
+      text()(); // created, approved, assigned, status_changed, checklist_updated, closure_added, reopened
   TextColumn get payloadJson => text().withDefault(const Constant('{}'))();
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
 
@@ -91,12 +100,15 @@ class TaskEvents extends Table {
 // Sync Outbox Table: For resilient offline sync
 class SyncOutboxItems extends Table {
   TextColumn get id => text()();
-  TextColumn get workspaceId => text().withDefault(const Constant('ws_default'))();
-  TextColumn get operationType => text()(); // create_packet, approve_packet, create_task, transition_task, sync_evidence
+  TextColumn get workspaceId =>
+      text().withDefault(const Constant('ws_default'))();
+  TextColumn get operationType =>
+      text()(); // create_packet, approve_packet, create_task, transition_task, sync_evidence
   TextColumn get entityId => text()();
   TextColumn get idempotencyKey => text()();
   TextColumn get payloadJson => text()();
-  TextColumn get status => text().withDefault(const Constant('pending'))(); // pending, syncing, synced, failed
+  TextColumn get status => text().withDefault(
+      const Constant('pending'))(); // pending, syncing, synced, failed
   IntColumn get retryCount => integer().withDefault(const Constant(0))();
   DateTimeColumn get nextAttemptAt => dateTime().nullable()();
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
@@ -114,16 +126,21 @@ class SyncOutboxItems extends Table {
   SyncOutboxItems,
 ])
 class EchoDatabase extends _$EchoDatabase {
-  EchoDatabase([QueryExecutor? executor]) : super(executor ?? _openConnection());
+  EchoDatabase([QueryExecutor? executor])
+      : super(executor ?? _openConnection());
 
   @override
   int get schemaVersion => 1;
 
   static LazyDatabase _openConnection() {
     return LazyDatabase(() async {
-      final dbFolder = await getApplicationDocumentsDirectory();
-      final file = File(p.join(dbFolder.path, 'echo_local.sqlite'));
-      return NativeDatabase.createInBackground(file);
+      try {
+        final dbFolder = await getApplicationDocumentsDirectory();
+        final file = File(p.join(dbFolder.path, 'echo_local.sqlite'));
+        return NativeDatabase.createInBackground(file);
+      } catch (_) {
+        return NativeDatabase.memory();
+      }
     });
   }
 }

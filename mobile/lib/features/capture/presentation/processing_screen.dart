@@ -29,7 +29,8 @@ class _ProcessingScreenState extends State<ProcessingScreen> {
   String? _statusError;
 
   List<String> get _steps {
-    final hasTranscript = widget.evidence.voiceTranscript != null && widget.evidence.voiceTranscript!.isNotEmpty;
+    final hasTranscript = widget.evidence.voiceTranscript != null &&
+        widget.evidence.voiceTranscript!.isNotEmpty;
     final hasVoice = widget.evidence.voicePath != null;
     return [
       'Preparing evidence',
@@ -57,7 +58,8 @@ class _ProcessingScreenState extends State<ProcessingScreen> {
   }
 
   void _startProcessingPipeline() async {
-    _stopwatchTimer = Timer.periodic(const Duration(milliseconds: 100), (timer) {
+    _stopwatchTimer =
+        Timer.periodic(const Duration(milliseconds: 100), (timer) {
       if (mounted) {
         setState(() {
           _elapsedMs += 100;
@@ -172,7 +174,8 @@ class _ProcessingScreenState extends State<ProcessingScreen> {
                       child: Row(
                         children: [
                           if (isDone)
-                            const Icon(Icons.check_circle_rounded, color: EchoTheme.successGreen, size: 20)
+                            const Icon(Icons.check_circle_rounded,
+                                color: EchoTheme.successGreen, size: 20)
                           else if (isCurrent)
                             const SizedBox(
                               width: 20,
@@ -183,17 +186,22 @@ class _ProcessingScreenState extends State<ProcessingScreen> {
                               ),
                             )
                           else
-                            const Icon(Icons.radio_button_unchecked_rounded, color: EchoTheme.borderColor, size: 20),
+                            const Icon(Icons.radio_button_unchecked_rounded,
+                                color: EchoTheme.borderColor, size: 20),
                           const SizedBox(width: 12),
                           Expanded(
                             child: Text(
                               _steps[idx],
                               style: TextStyle(
                                 fontSize: 13.5,
-                                fontWeight: isCurrent ? FontWeight.w700 : FontWeight.w500,
+                                fontWeight: isCurrent
+                                    ? FontWeight.w700
+                                    : FontWeight.w500,
                                 color: isDone
                                     ? EchoTheme.textPrimary
-                                    : (isCurrent ? EchoTheme.actionBlue : EchoTheme.textTertiary),
+                                    : (isCurrent
+                                        ? EchoTheme.actionBlue
+                                        : EchoTheme.textTertiary),
                               ),
                             ),
                           ),
@@ -208,7 +216,8 @@ class _ProcessingScreenState extends State<ProcessingScreen> {
                 const SizedBox(height: 20),
                 Text(
                   _statusError!,
-                  style: const TextStyle(color: EchoTheme.dangerRed, fontSize: 13),
+                  style:
+                      const TextStyle(color: EchoTheme.dangerRed, fontSize: 13),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 12),

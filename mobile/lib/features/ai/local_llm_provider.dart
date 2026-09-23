@@ -58,9 +58,12 @@ class LocalLlmRuntimeInfo {
     this.totalRamMb = 12288,
   });
 
-  String get formattedModelSize => '${(modelSizeBytes / (1024 * 1024 * 1024)).toStringAsFixed(2)} GB';
-  String get formattedRequiredStorage => '${(requiredStorageBytes / (1024 * 1024 * 1024)).toStringAsFixed(2)} GB';
-  String get formattedDownloadedProgress => '${(downloadedBytes / (1024 * 1024)).toStringAsFixed(1)} MB / ${(modelSizeBytes / (1024 * 1024)).toStringAsFixed(1)} MB';
+  String get formattedModelSize =>
+      '${(modelSizeBytes / (1024 * 1024 * 1024)).toStringAsFixed(2)} GB';
+  String get formattedRequiredStorage =>
+      '${(requiredStorageBytes / (1024 * 1024 * 1024)).toStringAsFixed(2)} GB';
+  String get formattedDownloadedProgress =>
+      '${(downloadedBytes / (1024 * 1024)).toStringAsFixed(1)} MB / ${(modelSizeBytes / (1024 * 1024)).toStringAsFixed(1)} MB';
 }
 
 abstract class LocalLlmProvider {
@@ -76,23 +79,27 @@ abstract class LocalLlmProvider {
 
 /// Official LiteRT-LM Local LLM Provider for Gemma 4 E2B-it on Android ARM64
 class LiteRtLocalLlmProvider implements LocalLlmProvider {
-  static const MethodChannel _channel = MethodChannel('com.echo.orchestrator/litert_lm');
+  static const MethodChannel _channel =
+      MethodChannel('com.echo.orchestrator/litert_lm');
 
   static const String modelName = 'Gemma 4 E2B-it';
   static const String modelId = 'litert-community/gemma-4-E2B-it-litert-lm';
   static const String modelFilename = 'gemma-4-E2B-it.litertlm';
   static const String tempFilename = 'gemma-4-E2B-it.litertlm.tmp';
   static const String pinnedCommit = '6e5c4f1e395deb959c494953478fa5cec4b8008f';
-  
+
   // Official pinned revision URL
-  static const String officialModelUrl = 'https://huggingface.co/litert-community/gemma-4-E2B-it-litert-lm/resolve/6e5c4f1e395deb959c494953478fa5cec4b8008f/gemma-4-E2B-it.litertlm';
-  
+  static const String officialModelUrl =
+      'https://huggingface.co/litert-community/gemma-4-E2B-it-litert-lm/resolve/6e5c4f1e395deb959c494953478fa5cec4b8008f/gemma-4-E2B-it.litertlm';
+
   // Expected cryptographic SHA-256
-  static const String expectedSha256 = '181938105e0eefd105961417e8da75903eacda102c4fce9ce90f50b97139a63c';
+  static const String expectedSha256 =
+      '181938105e0eefd105961417e8da75903eacda102c4fce9ce90f50b97139a63c';
 
   // Expected official pinned artifact size (2,588,147,712 bytes / ~2.41 GiB / ~2.59 GB)
   static const int modelSizeInBytes = 2588147712;
-  static const int requiredStorageInBytes = 3221225472; // ~3.0 GB (with download overhead)
+  static const int requiredStorageInBytes =
+      3221225472; // ~3.0 GB (with download overhead)
 
   bool _isInitialized = false;
   LocalLlmStatus _status = LocalLlmStatus.notInstalled;
@@ -143,20 +150,21 @@ class LiteRtLocalLlmProvider implements LocalLlmProvider {
       }
 
       final stopwatch = Stopwatch()..start();
-      
+
       // Call native LiteRT-LM bridge
       if (Platform.isAndroid) {
         final res = await _channel.invokeMethod<Map>('initializeEngine', {
           'modelPath': file.path,
         });
-        
+
         if (res?['initialized'] == true) {
           // Execute tiny inference proof
           await _channel.invokeMethod<String>('runTinyInference');
           stopwatch.stop();
 
           _modelLoadLatencyMs = stopwatch.elapsedMilliseconds;
-          _activeBackend = res?['backend'] as String? ?? 'LiteRT-LM (OpenCL GPU)';
+          _activeBackend =
+              res?['backend'] as String? ?? 'LiteRT-LM (OpenCL GPU)';
           _status = LocalLlmStatus.ready;
           _isInitialized = true;
           _lastError = null;
@@ -180,8 +188,8 @@ class LiteRtLocalLlmProvider implements LocalLlmProvider {
   @override
   Future<LocalLlmRuntimeInfo> runtimeInfo() async {
     final file = await _getModelFile();
-    if (_status != LocalLlmStatus.downloading && 
-        _status != LocalLlmStatus.verifying && 
+    if (_status != LocalLlmStatus.downloading &&
+        _status != LocalLlmStatus.verifying &&
         _status != LocalLlmStatus.installing &&
         _status != LocalLlmStatus.initializing) {
       if (file.existsSync() && file.lengthSync() == modelSizeInBytes) {
@@ -228,7 +236,9 @@ class LiteRtLocalLlmProvider implements LocalLlmProvider {
     final targetFile = await _getModelFile();
 
     if (tempFile.existsSync()) {
-      try { tempFile.deleteSync(); } catch (_) {}
+      try {
+        tempFile.deleteSync();
+      } catch (_) {}
     }
 
     _activeClient = HttpClient()
@@ -238,21 +248,26 @@ class LiteRtLocalLlmProvider implements LocalLlmProvider {
     try {
       final request = await _activeClient!.getUrl(Uri.parse(officialModelUrl));
       request.headers.set('User-Agent', 'ECHO-OnDevice-Mobile/1.0');
-      
+
       final response = await request.close();
 
       if (response.statusCode != 200 && response.statusCode != 206) {
-        throw HttpException('HTTP Download failed: ${response.statusCode} ${response.reasonPhrase}');
+        throw HttpException(
+            'HTTP Download failed: ${response.statusCode} ${response.reasonPhrase}');
       }
 
-      final contentLength = response.contentLength > 0 ? response.contentLength : modelSizeInBytes;
+      final contentLength = response.contentLength > 0
+          ? response.contentLength
+          : modelSizeInBytes;
       final sink = tempFile.openWrite();
 
       await for (final chunk in response) {
         if (_isCancelled) {
           await sink.close();
           if (tempFile.existsSync()) {
-            try { tempFile.deleteSync(); } catch (_) {}
+            try {
+              tempFile.deleteSync();
+            } catch (_) {}
           }
           _status = LocalLlmStatus.notInstalled;
           _lastError = 'Download cancelled by user.';
@@ -272,14 +287,16 @@ class LiteRtLocalLlmProvider implements LocalLlmProvider {
       // Exact artifact size verification
       final downloadedLength = tempFile.lengthSync();
       if (downloadedLength != modelSizeInBytes) {
-        throw Exception('FILE_INTEGRITY: Downloaded file size ($downloadedLength bytes) does not match pinned artifact size ($modelSizeInBytes bytes)');
+        throw Exception(
+            'FILE_INTEGRITY: Downloaded file size ($downloadedLength bytes) does not match pinned artifact size ($modelSizeInBytes bytes)');
       }
 
       // Cryptographic SHA-256 verification
       final digest = await sha256.bind(tempFile.openRead()).first;
       final actualHash = digest.toString().toLowerCase();
       if (actualHash != expectedSha256) {
-        throw Exception('FILE_INTEGRITY: SHA-256 ($actualHash) does not match expected pinned hash ($expectedSha256)');
+        throw Exception(
+            'FILE_INTEGRITY: SHA-256 ($actualHash) does not match expected pinned hash ($expectedSha256)');
       }
 
       _status = LocalLlmStatus.installing;
@@ -293,7 +310,8 @@ class LiteRtLocalLlmProvider implements LocalLlmProvider {
       // Real initialization & tiny inference validation
       final initialized = await initialize();
       if (!initialized) {
-        throw Exception('Native LiteRT-LM Engine initialization failed after download.');
+        throw Exception(
+            'Native LiteRT-LM Engine initialization failed after download.');
       }
 
       _status = LocalLlmStatus.ready;
@@ -302,7 +320,9 @@ class LiteRtLocalLlmProvider implements LocalLlmProvider {
       _status = LocalLlmStatus.failed;
       _lastError = '$e';
       if (tempFile.existsSync()) {
-        try { tempFile.deleteSync(); } catch (_) {}
+        try {
+          tempFile.deleteSync();
+        } catch (_) {}
       }
       yield 0.0;
     } finally {
@@ -344,16 +364,18 @@ class LiteRtLocalLlmProvider implements LocalLlmProvider {
   }
 
   @override
-  Future<Map<String, dynamic>> generateStructuredPacket(EvidencePackage input) async {
+  Future<Map<String, dynamic>> generateStructuredPacket(
+      EvidencePackage input) async {
     if (!isReady) {
-      throw StateError('LiteRT-LM local engine is not installed or initialized. Install model weights via AI Runtime screen first.');
+      throw StateError(
+          'LiteRT-LM local engine is not installed or initialized. Install model weights via AI Runtime screen first.');
     }
 
     _status = LocalLlmStatus.running;
     final genTimer = Stopwatch()..start();
 
     final rawText = (input.voiceTranscript ?? input.textNotes ?? '').trim();
-    
+
     // Model generation execution
     genTimer.stop();
     _totalGenerationLatencyMs = genTimer.elapsedMilliseconds;
@@ -361,12 +383,18 @@ class LiteRtLocalLlmProvider implements LocalLlmProvider {
     _status = LocalLlmStatus.ready;
 
     return {
-      'title': rawText.isNotEmpty ? 'Reported Issue: $rawText' : 'Operational Issue Report',
+      'title': rawText.isNotEmpty
+          ? 'Reported Issue: $rawText'
+          : 'Operational Issue Report',
       'category': 'other',
-      'summary': 'Structured candidate generated by local Gemma 4 E2B-it engine.',
+      'summary':
+          'Structured candidate generated by local Gemma 4 E2B-it engine.',
       'observations': [
         if (input.photoPath != null)
-          {'text': 'Visual photograph attached as evidence.', 'confidence': 0.95},
+          {
+            'text': 'Visual photograph attached as evidence.',
+            'confidence': 0.95
+          },
         if (rawText.isNotEmpty)
           {'text': 'User reports: "$rawText"', 'confidence': 0.95},
       ],
@@ -385,11 +413,23 @@ class LiteRtLocalLlmProvider implements LocalLlmProvider {
         }
       ],
       'suggested_actions': [
-        {'step': 1, 'action': 'Inspect reported equipment on-site.', 'confidence': 0.95},
+        {
+          'step': 1,
+          'action': 'Inspect reported equipment on-site.',
+          'confidence': 0.95
+        },
       ],
       'checklist': [
-        {'id': 'chk_1', 'text': 'Inspect reported issue on-site', 'isCompleted': false},
-        {'id': 'chk_2', 'text': 'Capture completion closure photo', 'isCompleted': false},
+        {
+          'id': 'chk_1',
+          'text': 'Inspect reported issue on-site',
+          'isCompleted': false
+        },
+        {
+          'id': 'chk_2',
+          'text': 'Capture completion closure photo',
+          'isCompleted': false
+        },
       ],
       'priority_signal': 'medium',
       'confidence_state': 'MEDIUM',

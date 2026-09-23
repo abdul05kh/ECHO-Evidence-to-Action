@@ -236,7 +236,7 @@ class _HomeQueueScreenState extends State<HomeQueueScreen> {
             onPressed: () {
               Navigator.of(context).push(
                 MaterialPageRoute(
-                  builder: (context) => AiRuntimeScreen(
+                  builder: (context) => AIRuntimeScreen(
                     localLlmProvider: LiteRtLocalLlmProvider(),
                   ),
                 ),

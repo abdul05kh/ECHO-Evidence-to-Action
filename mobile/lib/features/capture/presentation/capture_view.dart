@@ -67,14 +67,16 @@ class _CaptureViewState extends State<CaptureView> {
 
   void _loadCanonicalDemoScenario() {
     setState(() {
-      _notesController.text = 'Lab 2 projector is not powering on. The next class starts in about 20 minutes. We have a spare cable in the equipment room.';
+      _notesController.text =
+          'Lab 2 projector is not powering on. The next class starts in about 20 minutes. We have a spare cable in the equipment room.';
       _photoPath = 'assets/sample_data/projector_broken.jpg';
       _voiceDurationSec = 18;
       _isDemoFixtureLoaded = true;
       _mode = CaptureMode.demoFixture;
       _transcriptionResult = const TranscriptionResult(
         status: TranscriptionStatus.transcribed,
-        transcript: 'Lab 2 projector is not powering on. The next class starts in about 20 minutes. We have a spare cable in the equipment room.',
+        transcript:
+            'Lab 2 projector is not powering on. The next class starts in about 20 minutes. We have a spare cable in the equipment room.',
         language: 'en-US',
         durationMs: 18000,
         confidenceState: 'HIGH',
@@ -86,10 +88,13 @@ class _CaptureViewState extends State<CaptureView> {
   }
 
   void _startStructuring() {
-    if (_photoPath == null && _voicePath == null && _notesController.text.trim().isEmpty) {
+    if (_photoPath == null &&
+        _voicePath == null &&
+        _notesController.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Please capture a photo, voice note, or text note before structuring.'),
+          content: Text(
+              'Please capture a photo, voice note, or text note before structuring.'),
           backgroundColor: EchoTheme.warningAmber,
         ),
       );
@@ -97,9 +102,11 @@ class _CaptureViewState extends State<CaptureView> {
     }
 
     final now = DateTime.now();
-    final actualCaptureDurationMs = now.difference(_captureStartTime).inMilliseconds;
+    final actualCaptureDurationMs =
+        now.difference(_captureStartTime).inMilliseconds;
     final rawText = _notesController.text.trim();
-    final transcript = _transcriptionResult?.transcript ?? (rawText.isNotEmpty ? rawText : null);
+    final transcript = _transcriptionResult?.transcript ??
+        (rawText.isNotEmpty ? rawText : null);
 
     final evidencePackage = EvidencePackage(
       mode: _mode,
@@ -119,7 +126,8 @@ class _CaptureViewState extends State<CaptureView> {
           modelAdapter: widget.modelAdapter,
           onComplete: (packet) {
             final packetWithActualDuration = packet.copyWith(
-              captureDurationMs: actualCaptureDurationMs > 0 ? actualCaptureDurationMs : 35000,
+              captureDurationMs:
+                  actualCaptureDurationMs > 0 ? actualCaptureDurationMs : 35000,
             );
 
             Navigator.of(context).pushReplacement(
@@ -149,7 +157,9 @@ class _CaptureViewState extends State<CaptureView> {
 
   @override
   Widget build(BuildContext context) {
-    final hasEvidence = _photoPath != null || _voicePath != null || _notesController.text.trim().isNotEmpty;
+    final hasEvidence = _photoPath != null ||
+        _voicePath != null ||
+        _notesController.text.trim().isNotEmpty;
 
     return Scaffold(
       backgroundColor: EchoTheme.canvasColor,
@@ -163,7 +173,8 @@ class _CaptureViewState extends State<CaptureView> {
           // Clear demo scenario seed button
           TextButton.icon(
             onPressed: _loadCanonicalDemoScenario,
-            icon: const Icon(Icons.science_rounded, size: 16, color: EchoTheme.accentGoldDark),
+            icon: const Icon(Icons.science_rounded,
+                size: 16, color: EchoTheme.accentGoldDark),
             label: const Text(
               'DEMO SCENARIO',
               style: TextStyle(
@@ -191,12 +202,16 @@ class _CaptureViewState extends State<CaptureView> {
               ),
               child: const Row(
                 children: [
-                  Icon(Icons.info_outline, size: 16, color: EchoTheme.accentGoldDark),
+                  Icon(Icons.info_outline,
+                      size: 16, color: EchoTheme.accentGoldDark),
                   SizedBox(width: 8),
                   Expanded(
                     child: Text(
                       'DEMO SCENARIO LOADED · Lab 2 Projector canonical fixture active',
-                      style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.w700, color: EchoTheme.accentGoldDark),
+                      style: TextStyle(
+                          fontSize: 11.5,
+                          fontWeight: FontWeight.w700,
+                          color: EchoTheme.accentGoldDark),
                     ),
                   ),
                 ],
@@ -205,7 +220,8 @@ class _CaptureViewState extends State<CaptureView> {
           ],
 
           // 1. Visual Evidence Section
-          _buildSectionTitle('1. VISUAL EVIDENCE (PHOTO)', Icons.camera_alt_outlined),
+          _buildSectionTitle(
+              '1. VISUAL EVIDENCE (PHOTO)', Icons.camera_alt_outlined),
           const SizedBox(height: 8),
           if (_photoPath != null) ...[
             Container(
@@ -228,14 +244,18 @@ class _CaptureViewState extends State<CaptureView> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                     decoration: BoxDecoration(
                       color: Colors.white.withValues(alpha: 0.9),
                       borderRadius: BorderRadius.circular(6),
                     ),
                     child: const Text(
                       'Photo Attached',
-                      style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: EchoTheme.successGreen),
+                      style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w700,
+                          color: EchoTheme.successGreen),
                     ),
                   ),
                   Row(
@@ -248,7 +268,8 @@ class _CaptureViewState extends State<CaptureView> {
                             color: Colors.white.withValues(alpha: 0.9),
                             shape: BoxShape.circle,
                           ),
-                          child: const Icon(Icons.refresh_rounded, size: 18, color: EchoTheme.textPrimary),
+                          child: const Icon(Icons.refresh_rounded,
+                              size: 18, color: EchoTheme.textPrimary),
                         ),
                       ),
                       const SizedBox(width: 8),
@@ -263,7 +284,8 @@ class _CaptureViewState extends State<CaptureView> {
                             color: Colors.white.withValues(alpha: 0.9),
                             shape: BoxShape.circle,
                           ),
-                          child: const Icon(Icons.delete_outline_rounded, size: 18, color: EchoTheme.dangerRed),
+                          child: const Icon(Icons.delete_outline_rounded,
+                              size: 18, color: EchoTheme.dangerRed),
                         ),
                       ),
                     ],
@@ -286,7 +308,8 @@ class _CaptureViewState extends State<CaptureView> {
                 child: const Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(Icons.add_a_photo_outlined, size: 32, color: EchoTheme.actionBlue),
+                    Icon(Icons.add_a_photo_outlined,
+                        size: 32, color: EchoTheme.actionBlue),
                     SizedBox(height: 8),
                     Text(
                       'Take Photo of Issue',
@@ -299,7 +322,8 @@ class _CaptureViewState extends State<CaptureView> {
                     SizedBox(height: 2),
                     Text(
                       'Real-time Android camera viewfinder',
-                      style: TextStyle(fontSize: 11.5, color: EchoTheme.textTertiary),
+                      style: TextStyle(
+                          fontSize: 11.5, color: EchoTheme.textTertiary),
                     ),
                   ],
                 ),
@@ -309,7 +333,8 @@ class _CaptureViewState extends State<CaptureView> {
           const SizedBox(height: 18),
 
           // 2. Audio Evidence Section
-          _buildSectionTitle('2. SPOKEN CONTEXT (VOICE NOTE)', Icons.mic_none_outlined),
+          _buildSectionTitle(
+              '2. SPOKEN CONTEXT (VOICE NOTE)', Icons.mic_none_outlined),
           const SizedBox(height: 8),
           AudioRecorderWidget(
             initialAudioPath: _voicePath,
@@ -320,7 +345,8 @@ class _CaptureViewState extends State<CaptureView> {
                 _voiceDurationSec = duration;
                 _transcriptionResult = result;
                 _isDemoFixtureLoaded = false;
-                if (result.isTranscribed && _notesController.text.trim().isEmpty) {
+                if (result.isTranscribed &&
+                    _notesController.text.trim().isEmpty) {
                   _notesController.text = result.transcript!;
                 }
               });
@@ -336,14 +362,16 @@ class _CaptureViewState extends State<CaptureView> {
           const SizedBox(height: 18),
 
           // 3. Spoken Transcript / Context Notes
-          _buildSectionTitle('3. SPOKEN TRANSCRIPT / CONTEXT NOTES', Icons.edit_note_outlined),
+          _buildSectionTitle(
+              '3. SPOKEN TRANSCRIPT / CONTEXT NOTES', Icons.edit_note_outlined),
           const SizedBox(height: 8),
           TextField(
             controller: _notesController,
             maxLines: 2,
             decoration: InputDecoration(
               hintText: 'e.g. The keyboard isn\'t working. Please fix it.',
-              hintStyle: const TextStyle(fontSize: 13, color: EchoTheme.textTertiary),
+              hintStyle:
+                  const TextStyle(fontSize: 13, color: EchoTheme.textTertiary),
               filled: true,
               fillColor: EchoTheme.surfaceColor,
               border: OutlineInputBorder(
@@ -380,7 +408,9 @@ class _CaptureViewState extends State<CaptureView> {
               Icon(
                 Icons.auto_awesome_rounded,
                 size: 20,
-                color: hasEvidence ? EchoTheme.textPrimary : EchoTheme.textTertiary,
+                color: hasEvidence
+                    ? EchoTheme.textPrimary
+                    : EchoTheme.textTertiary,
               ),
               const SizedBox(width: 10),
               Text(
@@ -389,7 +419,9 @@ class _CaptureViewState extends State<CaptureView> {
                   fontSize: 14.5,
                   fontWeight: FontWeight.w800,
                   letterSpacing: 0.5,
-                  color: hasEvidence ? EchoTheme.textPrimary : EchoTheme.textTertiary,
+                  color: hasEvidence
+                      ? EchoTheme.textPrimary
+                      : EchoTheme.textTertiary,
                 ),
               ),
             ],

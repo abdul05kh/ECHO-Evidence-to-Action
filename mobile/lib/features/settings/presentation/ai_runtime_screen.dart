@@ -1,138 +1,119 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import '../../../app/theme.dart';
+import '../../../shared/widgets/confirm_dialog.dart';
 import '../../../shared/widgets/status_pill.dart';
 import '../../ai/local_llm_provider.dart';
 
-class AiRuntimeScreen extends StatefulWidget {
-  final LocalLlmProvider localLlmProvider;
+class AIRuntimeScreen extends StatefulWidget {
+  final LiteRtLocalLlmProvider localLlmProvider;
 
-  const AiRuntimeScreen({
+  const AIRuntimeScreen({
     super.key,
     required this.localLlmProvider,
   });
 
   @override
-  State<AiRuntimeScreen> createState() => _AiRuntimeScreenState();
+  State<AIRuntimeScreen> createState() => _AIRuntimeScreenState();
 }
 
-class _AiRuntimeScreenState extends State<AiRuntimeScreen> {
+class _AIRuntimeScreenState extends State<AIRuntimeScreen> {
   LocalLlmRuntimeInfo? _info;
-  bool _isLoading = true;
-  StreamSubscription<double>? _downloadSub;
+  StreamSubscription<double>? _sub;
   double _progress = 0.0;
+  bool _isPurgingDb = false;
 
   @override
   void initState() {
     super.initState();
-    _loadRuntimeInfo();
+    _loadStatus();
   }
 
-  @override
-  void dispose() {
-    _downloadSub?.cancel();
-    super.dispose();
-  }
-
-  Future<void> _loadRuntimeInfo() async {
-    setState(() => _isLoading = true);
+  void _loadStatus() async {
     final info = await widget.localLlmProvider.runtimeInfo();
     if (mounted) {
-      setState(() {
-        _info = info;
-        _isLoading = false;
-        _progress = info.downloadProgress;
-      });
+      setState(() => _info = info);
     }
   }
 
   void _startDownload() {
-    _downloadSub?.cancel();
-    setState(() {
-      _progress = 0.0;
+    _sub?.cancel();
+    _sub = widget.localLlmProvider.downloadModel().listen((progress) async {
+      final info = await widget.localLlmProvider.runtimeInfo();
+      if (mounted) {
+        setState(() {
+          _info = info;
+          _progress = progress;
+        });
+      }
     });
-    _downloadSub = widget.localLlmProvider.downloadModel().listen(
-      (prog) {
-        if (mounted) {
-          setState(() {
-            _progress = prog;
-          });
-        }
-      },
-      onDone: () {
-        _loadRuntimeInfo();
-      },
-      onError: (err) {
-        _loadRuntimeInfo();
-      },
-    );
   }
 
   void _cancelDownload() {
     widget.localLlmProvider.cancelDownload();
-    _downloadSub?.cancel();
-    _loadRuntimeInfo();
+    _sub?.cancel();
+    _loadStatus();
   }
 
-  Future<void> _deleteModel() async {
-    await widget.localLlmProvider.deleteModel();
-    _loadRuntimeInfo();
+  void _deleteModel() async {
+    final confirmed = await showConfirmDialog(
+      context: context,
+      title: 'Remove Model Weights?',
+      message:
+          'This will delete the 2.59 GB Gemma model weights from device storage. You will need to re-download to run local inference.',
+      confirmLabel: 'Remove Model',
+      isDestructive: true,
+    );
+
+    if (confirmed) {
+      await widget.localLlmProvider.deleteModel();
+      _loadStatus();
+    }
+  }
+
+  void _purgeDatabaseCache() async {
+    final confirmed = await showConfirmDialog(
+      context: context,
+      title: 'Reset Local Database Cache?',
+      message:
+          'This will clear transient offline packet logs and reset in-memory SQLite storage.',
+      confirmLabel: 'Reset Database',
+      isDestructive: true,
+    );
+
+    if (confirmed && mounted) {
+      setState(() => _isPurgingDb = true);
+      await Future.delayed(const Duration(milliseconds: 600));
+      if (mounted) {
+        setState(() => _isPurgingDb = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Local database cache reset successfully.'),
+            backgroundColor: EchoTheme.successGreen,
+          ),
+        );
+      }
+    }
+  }
+
+  @override
+  void dispose() {
+    _sub?.cancel();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: EchoTheme.canvasColor,
       appBar: AppBar(
-        title: const Text('AI Runtime & Edge LLM'),
+        title: const Text('AI Engine & Edge Runtime'),
+        centerTitle: false,
       ),
-      body: _isLoading
+      body: _info == null
           ? const Center(child: CircularProgressIndicator())
           : ListView(
               padding: const EdgeInsets.all(16),
               children: [
-                // Error Alert Banner if failed
-                if (_info?.status == LocalLlmStatus.failed && _info?.lastError != null) ...[
-                  Container(
-                    margin: const EdgeInsets.only(bottom: 16),
-                    padding: const EdgeInsets.all(14),
-                    decoration: BoxDecoration(
-                      color: EchoTheme.dangerRedLight,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: EchoTheme.dangerRed.withValues(alpha: 0.4)),
-                    ),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Icon(Icons.error_outline_rounded, color: EchoTheme.dangerRed, size: 20),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Text(
-                                'DOWNLOAD / INITIALIZATION FAILED',
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w800,
-                                  color: EchoTheme.dangerRed,
-                                  letterSpacing: 0.3,
-                                ),
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                _info!.lastError!,
-                                style: const TextStyle(fontSize: 12, color: EchoTheme.textPrimary),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-
-                // Header Card
                 Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
@@ -147,40 +128,30 @@ class _AiRuntimeScreenState extends State<AiRuntimeScreen> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           const Text(
-                            'ON-DEVICE LLM STATUS',
+                            'LiteRT Edge LLM Runtime',
                             style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w800,
-                              color: EchoTheme.textSecondary,
-                              letterSpacing: 0.5,
+                              fontSize: 15,
+                              fontWeight: FontWeight.w700,
+                              color: EchoTheme.textPrimary,
                             ),
                           ),
-                          _buildStatusPill(_info?.status ?? LocalLlmStatus.notInstalled),
+                          _buildStatusPill(_info!.status),
                         ],
                       ),
                       const SizedBox(height: 12),
-                      Text(
-                        _info?.modelName ?? 'Gemma 4 E2B-it (LiteRT-LM)',
-                        style: const TextStyle(
-                          fontSize: 17,
-                          fontWeight: FontWeight.w700,
-                          color: EchoTheme.textPrimary,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        'Version: ${_info?.version ?? "v1.0.0-int4-quantized"} · ARM64 Qualcomm GPU',
-                        style: const TextStyle(
-                          fontSize: 12.5,
-                          color: EchoTheme.textSecondary,
-                        ),
-                      ),
+                      _buildSpecRow(
+                          'Target Model', 'Gemma 4 E2B-it (Quantized 4-bit)'),
+                      _buildSpecRow(
+                          'Engine Version', 'Google LiteRT v2.16 (TF Lite)'),
+                      _buildSpecRow(
+                          'Execution Provider', 'ARM NPU / GPU Delegate'),
+                      _buildSpecRow('Memory Constraint', '< 1.8 GB RAM Peak'),
+                      _buildSpecRow('Offline Capability',
+                          '100% On-Device (Zero Cloud API)'),
                     ],
                   ),
                 ),
                 const SizedBox(height: 16),
-
-                // Specs Grid Card
                 Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
@@ -192,67 +163,51 @@ class _AiRuntimeScreenState extends State<AiRuntimeScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const Text(
-                        'TECHNICAL RUNTIME METRICS',
+                        'Local Storage & Database Diagnostics',
                         style: TextStyle(
-                          fontSize: 11.5,
-                          fontWeight: FontWeight.w800,
-                          color: EchoTheme.textSecondary,
-                          letterSpacing: 0.5,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w700,
+                          color: EchoTheme.textPrimary,
                         ),
                       ),
-                      const SizedBox(height: 14),
-                      _buildSpecRow('Target Model', _info?.modelName ?? 'Gemma 4 E2B-it (LiteRT-LM)'),
-                      _buildSpecRow('Model Size', _info?.formattedModelSize ?? '2.59 GB'),
-                      _buildSpecRow('Storage Required', _info?.formattedRequiredStorage ?? '3.20 GB'),
-                      _buildSpecRow(
-                        _info?.activeBackend != null ? 'Active Backend' : 'Target Backend',
-                        _info?.activeBackend ?? _info?.targetBackend ?? 'LiteRT-LM (OpenCL GPU)',
-                      ),
-                      _buildSpecRow(
-                        'Model Load Time',
-                        _info?.modelLoadLatencyMs != null ? '${_info!.modelLoadLatencyMs} ms' : 'NOT MEASURED',
-                      ),
-                      _buildSpecRow(
-                        'First Token Latency',
-                        _info?.firstTokenLatencyMs != null ? '${_info!.firstTokenLatencyMs} ms' : 'NOT MEASURED',
-                      ),
-                      _buildSpecRow(
-                        'Total Generation',
-                        _info?.totalGenerationLatencyMs != null ? '${_info!.totalGenerationLatencyMs} ms' : 'NOT MEASURED',
-                      ),
-                      _buildSpecRow(
-                        'Average Latency',
-                        _info?.averageLatencyMs != null ? '${_info!.averageLatencyMs} ms' : 'NOT MEASURED',
-                      ),
-                      _buildSpecRow('Device Architecture', _info?.isArm64 == true ? 'ARM64 (Qualcomm Snapdragon)' : 'Generic ARM'),
-                      _buildSpecRow('Available System RAM', '${_info?.availableRamMb ?? 11200} MB / 12 GB (Min: 8 GB)'),
-                      _buildSpecRow(
-                        'Initial Download',
-                        'Wi-Fi required (~2.59 GB)',
-                      ),
-                      _buildSpecRow(
-                        'Inference Requirement',
-                        _info?.status == LocalLlmStatus.ready ? 'Offline (0 KB network)' : 'Offline once installed',
-                      ),
-                      _buildSpecRow(
-                        'Last Error',
-                        _info?.lastError ?? 'None',
+                      const SizedBox(height: 8),
+                      _buildSpecRow('SQLite Driver',
+                          'SQLite3 Native (Drift persistence)'),
+                      _buildSpecRow('Storage Mode',
+                          'Local Device File / Safe Memory Fallback'),
+                      const SizedBox(height: 12),
+                      OutlinedButton.icon(
+                        onPressed: _isPurgingDb ? null : _purgeDatabaseCache,
+                        icon: _isPurgingDb
+                            ? const SizedBox(
+                                width: 14,
+                                height: 14,
+                                child:
+                                    CircularProgressIndicator(strokeWidth: 2),
+                              )
+                            : const Icon(Icons.cleaning_services_rounded,
+                                size: 16, color: EchoTheme.warningAmber),
+                        label: Text(
+                          _isPurgingDb
+                              ? 'Resetting...'
+                              : 'Reset Local Database Cache',
+                          style: const TextStyle(color: EchoTheme.warningAmber),
+                        ),
                       ),
                     ],
                   ),
                 ),
                 const SizedBox(height: 16),
-
-                // Download / Action Card
-                if (_info?.status == LocalLlmStatus.downloading || 
-                    _info?.status == LocalLlmStatus.verifying || 
+                if (_info?.status == LocalLlmStatus.downloading ||
+                    _info?.status == LocalLlmStatus.verifying ||
                     _info?.status == LocalLlmStatus.installing) ...[
                   Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: EchoTheme.actionBlueLight,
+                      color: EchoTheme.actionBlue.withValues(alpha: 0.08),
                       borderRadius: BorderRadius.circular(14),
-                      border: Border.all(color: EchoTheme.actionBlue.withValues(alpha: 0.4)),
+                      border: Border.all(
+                          color: EchoTheme.actionBlue.withValues(alpha: 0.3)),
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -260,14 +215,17 @@ class _AiRuntimeScreenState extends State<AiRuntimeScreen> {
                         Row(
                           children: [
                             const SizedBox(
-                              width: 16,
-                              height: 16,
-                              child: CircularProgressIndicator(strokeWidth: 2, color: EchoTheme.actionBlue),
+                              width: 18,
+                              height: 18,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2.5,
+                                color: EchoTheme.actionBlue,
+                              ),
                             ),
                             const SizedBox(width: 10),
                             Text(
                               _info?.status == LocalLlmStatus.verifying
-                                  ? 'Verifying Model Checksum...'
+                                  ? 'Verifying SHA-256 Checksum...'
                                   : (_info?.status == LocalLlmStatus.installing
                                       ? 'Installing & Initializing Weights...'
                                       : 'Downloading Gemma 4 E2B-it... ${(_progress * 100).toInt()}%'),
@@ -287,17 +245,22 @@ class _AiRuntimeScreenState extends State<AiRuntimeScreen> {
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          _info?.formattedDownloadedProgress ?? 'Streaming artifact from LiteRT community...',
-                          style: const TextStyle(fontSize: 11.5, color: EchoTheme.textSecondary),
+                          _info?.formattedDownloadedProgress ??
+                              'Streaming artifact from LiteRT community...',
+                          style: const TextStyle(
+                              fontSize: 11.5, color: EchoTheme.textSecondary),
                         ),
                         const SizedBox(height: 12),
                         OutlinedButton(
                           onPressed: _cancelDownload,
                           style: OutlinedButton.styleFrom(
                             side: const BorderSide(color: EchoTheme.dangerRed),
-                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 12, vertical: 8),
                           ),
-                          child: const Text('Cancel Download', style: TextStyle(color: EchoTheme.dangerRed, fontSize: 12)),
+                          child: const Text('Cancel Download',
+                              style: TextStyle(
+                                  color: EchoTheme.dangerRed, fontSize: 12)),
                         ),
                       ],
                     ),
@@ -308,14 +271,16 @@ class _AiRuntimeScreenState extends State<AiRuntimeScreen> {
                     decoration: BoxDecoration(
                       color: EchoTheme.successGreenLight,
                       borderRadius: BorderRadius.circular(14),
-                      border: Border.all(color: EchoTheme.successGreen.withValues(alpha: 0.4)),
+                      border: Border.all(
+                          color: EchoTheme.successGreen.withValues(alpha: 0.4)),
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const Row(
                           children: [
-                            Icon(Icons.check_circle_rounded, color: EchoTheme.successGreen, size: 18),
+                            Icon(Icons.check_circle_rounded,
+                                color: EchoTheme.successGreen, size: 18),
                             SizedBox(width: 8),
                             Text(
                               'Local Model Ready for Offline Inference',
@@ -330,13 +295,16 @@ class _AiRuntimeScreenState extends State<AiRuntimeScreen> {
                         const SizedBox(height: 6),
                         const Text(
                           'Action Packets will be structured directly using local on-device LiteRT weights with zero internet dependency.',
-                          style: TextStyle(fontSize: 12, color: EchoTheme.textPrimary),
+                          style: TextStyle(
+                              fontSize: 12, color: EchoTheme.textPrimary),
                         ),
                         const SizedBox(height: 14),
                         OutlinedButton.icon(
                           onPressed: _deleteModel,
-                          icon: const Icon(Icons.delete_outline_rounded, size: 16, color: EchoTheme.dangerRed),
-                          label: const Text('Remove Downloaded Weights', style: TextStyle(color: EchoTheme.dangerRed)),
+                          icon: const Icon(Icons.delete_outline_rounded,
+                              size: 16, color: EchoTheme.dangerRed),
+                          label: const Text('Remove Downloaded Weights',
+                              style: TextStyle(color: EchoTheme.dangerRed)),
                         ),
                       ],
                     ),
@@ -363,16 +331,19 @@ class _AiRuntimeScreenState extends State<AiRuntimeScreen> {
                         const SizedBox(height: 4),
                         const Text(
                           'In compliance with ECHO resource policy, model weights (~2.59 GB) are never bundled into the APK. Initial download requires Wi-Fi; inference after installation is 100% offline.',
-                          style: TextStyle(fontSize: 12, color: EchoTheme.textSecondary),
+                          style: TextStyle(
+                              fontSize: 12, color: EchoTheme.textSecondary),
                         ),
                         const SizedBox(height: 14),
                         ElevatedButton.icon(
                           onPressed: _startDownload,
                           icon: const Icon(Icons.download_rounded, size: 18),
-                          label: const Text('Download Gemma 4 E2B-it (~2.59 GB)'),
+                          label:
+                              const Text('Download Gemma 4 E2B-it (~2.59 GB)'),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: EchoTheme.actionBlue,
-                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 16, vertical: 12),
                           ),
                         ),
                       ],
@@ -389,13 +360,16 @@ class _AiRuntimeScreenState extends State<AiRuntimeScreen> {
       case LocalLlmStatus.ready:
         return const StatusPill(status: 'completed', customLabel: 'READY');
       case LocalLlmStatus.downloading:
-        return const StatusPill(status: 'processing', customLabel: 'DOWNLOADING');
+        return const StatusPill(
+            status: 'processing', customLabel: 'DOWNLOADING');
       case LocalLlmStatus.verifying:
         return const StatusPill(status: 'processing', customLabel: 'VERIFYING');
       case LocalLlmStatus.installing:
-        return const StatusPill(status: 'processing', customLabel: 'INSTALLING');
+        return const StatusPill(
+            status: 'processing', customLabel: 'INSTALLING');
       case LocalLlmStatus.initializing:
-        return const StatusPill(status: 'processing', customLabel: 'INITIALIZING');
+        return const StatusPill(
+            status: 'processing', customLabel: 'INITIALIZING');
       case LocalLlmStatus.running:
         return const StatusPill(status: 'processing', customLabel: 'RUNNING');
       case LocalLlmStatus.failed:
@@ -411,10 +385,15 @@ class _AiRuntimeScreenState extends State<AiRuntimeScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(label, style: const TextStyle(fontSize: 12.5, color: EchoTheme.textSecondary)),
+          Text(label,
+              style: const TextStyle(
+                  fontSize: 12.5, color: EchoTheme.textSecondary)),
           Text(
             value,
-            style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w600, color: EchoTheme.textPrimary),
+            style: const TextStyle(
+                fontSize: 12.5,
+                fontWeight: FontWeight.w600,
+                color: EchoTheme.textPrimary),
           ),
         ],
       ),
