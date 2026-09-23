@@ -2,9 +2,9 @@ name: ECHO Mobile CI
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, zakirverse-contributions ]
   pull_request:
-    branches: [ main ]
+    branches: [ main, zakirverse-contributions ]
 
 jobs:
   analyze_and_test:
@@ -30,6 +30,10 @@ jobs:
       - name: Install Dependencies
         working-directory: mobile
         run: flutter pub get
+
+      - name: Verify Code Formatting
+        working-directory: mobile
+        run: dart format --output=none --set-exit-if-changed .
 
       - name: Static Code Analysis
         working-directory: mobile

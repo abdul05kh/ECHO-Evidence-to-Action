@@ -1,9 +1,5 @@
 # ECHO — Evidence Capture & Handoff Orchestrator
 
-> **Turn what a frontline operator sees and says into a verified, evidence-grounded unit of work — on the phone, offline, and ready for immediate execution.**
-
-[![ECHO Mobile CI](https://github.com/abdul05kh/ECHO-Evidence-to-Action/actions/workflows/ci.yml/badge.svg)](https://github.com/abdul05kh/ECHO-Evidence-to-Action/actions/workflows/ci.yml)
-[![ECHO Release](https://github.com/abdul05kh/ECHO-Evidence-to-Action/actions/workflows/release.yml/badge.svg)](https://github.com/abdul05kh/ECHO-Evidence-to-Action/actions/workflows/release.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Android ARM64](https://img.shields.io/badge/Platform-Android%20ARM64-green.svg)](https://github.com/abdul05kh/ECHO-Evidence-to-Action/releases)
 
@@ -17,13 +13,13 @@
 **SHA-256:** `b51f77778420d01e99843546fae4606c44e89b7eace6817e9f45df398718861c`  
 **Size:** 24,175,738 bytes (23.1 MB)
 
-👉 **[Download Android ARM64 APK (v1.0.1-android-final)](https://github.com/abdul05kh/ECHO-Evidence-to-Action/releases/download/v1.0.1-android-final/echo-android-arm64.apk)**
+📦 **[Download Android ARM64 APK (v1.0.1-android-final)](https://github.com/abdul05kh/ECHO-Evidence-to-Action/releases/download/v1.0.1-android-final/echo-android-arm64.apk)**
 
-👉 **[View All Releases & Checksums](https://github.com/abdul05kh/ECHO-Evidence-to-Action/releases)**
+📦 **[View All Releases & Checksums](https://github.com/abdul05kh/ECHO-Evidence-to-Action/releases)**
 
 ---
 
-## 🎯 What ECHO Does
+## 🚀 What ECHO Does
 
 Frontline operational reporting is broken: verbal reports lose context, unstructured chats cause misunderstandings, and technicians arrive on-site with missing details. 
 
@@ -34,23 +30,23 @@ ECHO solves this at the edge:
 4. **Mandatory Human Gate**: Operators review and confirm the packet before approving it as a formal work order (`REVIEW & CONFIRM` $\to$ `APPROVE WORK ORDER`).
 5. **Deterministic Policy & Provenance**: Priority is calculated by a deterministic safety and urgency engine, while every fact is bidirectionally linked to its source photo or voice excerpt.
 6. **Task Execution & Closure**: The task transitions through an audited state machine and requires before/after closure evidence to complete.
-7. **Office Kit Handoff**: Exports `.echopack.json` payloads and structured Markdown clipboard data to supervisory desktop environments without retyping.
+7. **Office Kit Handoff**: Exports `.echopack.json` payloads, CSV batch summaries, and structured Markdown clipboard data to supervisory desktop environments without retyping.
 
 ---
 
-## 🔍 System Verification & Runtime Status
+## 📊 System Verification & Runtime Status
 
 | Capability | Status | Notes |
 |---|:---:|---|
 | **Camera Capture** | **PHYSICALLY VERIFIED** | Real-time Android CameraX viewfinder, photo capture, and local storage |
 | **Voice Recording** | **PHYSICALLY VERIFIED** | Real microphone capture with AAC-LC encoding and in-app audio playback |
 | **On-Device STT** | **IMPLEMENTED & BRIDGED** | Native Android `createOnDeviceSpeechRecognizer` MethodChannel bridge |
-| **Action Packet Structuring** | **PHYSICALLY VERIFIED** | Evidence-grounded domain routing across IT, Electrical, HVAC, Plumbing, Equipment |
+| **Action Packet Structuring** | **PHYSICALLY VERIFIED** | Evidence-grounded domain routing across IT, Electrical, HVAC, Plumbing, Equipment, Furniture |
 | **Grounding & Provenance** | **PHYSICALLY VERIFIED** | Zero hallucinated root causes; interactive modal tracing claims to media assets |
 | **Offline Core Workflow** | **PHYSICALLY VERIFIED** | Capture $\to$ Packet $\to$ Approval $\to$ Task $\to$ Closure runs offline (Airplane Mode) |
 | **Local SQLite Database** | **PHYSICALLY VERIFIED** | Drift/SQLite persistence survives app termination and device restart |
 | **Local LLM Engine** | **ARCHITECTURE VERIFIED** | Genuine streaming downloader for official Gemma 4 E2B-it 2.59 GB artifact; `PROTOTYPE_RUNTIME` fallback active until downloaded |
-| **Office Kit Handoff** | **ARCHITECTURE VERIFIED** | `.echopack.json` and Markdown clipboard serialization verified; live event bridge pending environment |
+| **Office Kit Handoff** | **ARCHITECTURE VERIFIED** | `.echopack.json`, CSV export, and Markdown clipboard serialization verified |
 
 ---
 
@@ -77,7 +73,7 @@ graph TD
 
 ---
 
-## 🤖 AI Runtime & Edge Model Setup
+## ⚙️ AI Runtime & Edge Model Setup
 
 ECHO implements a transparent, tiered AI runtime:
 
@@ -92,14 +88,14 @@ ECHO implements a transparent, tiered AI runtime:
 To respect user storage and bandwidth, multi-gigabyte neural weights are **never bundled inside the APK binary**.
 
 1. Open ECHO on your Android device.
-2. Tap the **AI Runtime & Model Status** icon (🧠) in the top AppBar.
+2. Tap the **AI Runtime & Model Status** icon in the top AppBar.
 3. Review technical diagnostics (Available RAM, Storage, GPU Backend).
 4. Tap **Download Gemma 4 E2B-it (~2.59 GB)** to download weights directly to app-private storage (requires min 8 GB RAM, 3.20 GB storage).
 5. Once downloaded, ECHO will switch from `PROTOTYPE_RUNTIME` to local neural LLM execution.
 
 ---
 
-## 🚀 Installation & Verification
+## 🧪 Installation & Verification
 
 ### Install Release APK via ADB
 
@@ -123,24 +119,19 @@ cd mobile
 flutter test
 ```
 
-**27 Automated Tests Passing:**
+**73 Automated Tests Passing:**
 - **10/10 Local STT & Grounding Regression Tests**: Real transcript, empty transcript, STT unavailable, STT error, fixture isolation, clean live capture, cross-domain routing, unrelated photo mismatch, airplane mode, duplicate capture.
 - **7/7 Voice Semantics & Domain Routing Tests**: `it_peripheral`, `electrical`, `equipment`, `hvac`, `plumbing`, `furniture`, `access`.
 - **4/4 Deterministic Policy Engine Tests**: Critical safety hazards, high-urgency deadlines, routine maintenance.
 - **3/3 Schema Validator & JSON Structure Tests**.
 - **3/3 Task State Machine Lifecycle & Invalid Transition Tests**.
+- **12/12 Reusable Widget Tests**: `PriorityBadge`, `EmptyStateWidget`, `CategoryChip`, `StatusPill`, `EchoLoadingIndicator`, `ConfirmDialog`.
+- **14/14 Domain Model & Utility Tests**: `ActionPacketModel` serialization, `OfficeKitBridge` Markdown/JSON/CSV exports, `EchoDateFormatter`, `EchoDurationFormatter`.
+- **20/20 UI Screen Widget Tests**: `HomeQueueScreen` search/filter bar, `TaskDetailScreen` interactive checklist.
 
 ---
 
-## ⚠️ Known Limitations
-
-- **Local LLM Execution**: Neural model execution requires explicit in-app weight download (~1.8 GB) over Wi-Fi. By default, ECHO operates on the embedded `PROTOTYPE_RUNTIME` with full domain routing and schema validation.
-- **Office Kit Live Environment**: Desktop auto-import depends on clipboard or file transfer of `.echopack.json` payloads between devices.
-- **Target Architecture**: Compiled specifically for ARM64 (`arm64-v8a`) Android devices running Android 10+ (API 29+).
-
----
-
-## 🔒 Security & Privacy
+## 🛡️ Security & Privacy
 
 - **Zero Cloud Uploads**: All audio recordings, photos, and transcripts remain exclusively on the local device.
 - **Zero API Keys or Secrets**: No cloud API keys or `.env` secrets are packaged in the app.
@@ -148,7 +139,7 @@ flutter test
 
 ---
 
-## 🏆 Hackathon Metadata
+## 🎯 Hackathon Metadata
 
 - **Event:** iQOO Hackathon 2026
 - **Track:** Track 04 — Productivity
