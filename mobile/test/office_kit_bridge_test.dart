@@ -17,7 +17,9 @@ void main() {
       observations: [
         const ObservedFact(
           text: 'Projector LED unlit',
-          evidenceLinks: [EvidenceLink(evidenceId: 'ev_1', type: 'photo', label: 'Photo #01')],
+          evidenceLinks: [
+            EvidenceLink(evidenceId: 'ev_1', type: 'photo', label: 'Photo #01')
+          ],
         ),
       ],
       inferences: [
@@ -29,10 +31,13 @@ void main() {
         ),
       ],
       missingInformation: [
-        const MissingInfoItem(prompt: 'Check breaker #4', contextReason: 'Breaker status obscured'),
+        const MissingInfoItem(
+            prompt: 'Check breaker #4',
+            contextReason: 'Breaker status obscured'),
       ],
       checklist: [
-        const ChecklistItemData(id: 'c1', text: 'Swap power cable', isCompleted: false),
+        const ChecklistItemData(
+            id: 'c1', text: 'Swap power cable', isCompleted: false),
       ],
       createdAt: DateTime.now(),
       updatedAt: DateTime.now(),

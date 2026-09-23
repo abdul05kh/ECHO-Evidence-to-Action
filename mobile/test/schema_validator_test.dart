@@ -9,7 +9,9 @@ void main() {
         'title': 'Lab 2 Projector Power Failure',
         'summary': 'Projector is unresponsive before next class.',
         'category': 'equipment',
-        'observations': [{'text': 'Power light unlit'}],
+        'observations': [
+          {'text': 'Power light unlit'}
+        ],
         'inferences': [],
         'missing_information': [],
         'suggested_actions': [],
@@ -47,7 +49,8 @@ void main() {
       expect(TaskStateMachine.canTransition('processing', 'ready'), isTrue);
       expect(TaskStateMachine.canTransition('ready', 'approved'), isTrue);
       expect(TaskStateMachine.canTransition('approved', 'in_progress'), isTrue);
-      expect(TaskStateMachine.canTransition('in_progress', 'completed'), isTrue);
+      expect(
+          TaskStateMachine.canTransition('in_progress', 'completed'), isTrue);
       expect(TaskStateMachine.canTransition('completed', 'reopened'), isTrue);
     });
 

@@ -5,7 +5,8 @@ void main() {
   group('Deterministic PolicyEngine Tests', () {
     test('Safety critical keywords trigger CRITICAL priority', () {
       final result = PolicyEngine.evaluate(
-        rawVoiceText: 'There is an electric spark and smoke near the projector mount.',
+        rawVoiceText:
+            'There is an electric spark and smoke near the projector mount.',
         textNotes: null,
         category: 'equipment',
         observations: ['Smoke observed near ceiling mount'],
@@ -19,7 +20,8 @@ void main() {
 
     test('Upcoming class deadline keywords trigger HIGH priority', () {
       final result = PolicyEngine.evaluate(
-        rawVoiceText: 'Lab 2 projector is not powering on. The next class starts in about 20 minutes.',
+        rawVoiceText:
+            'Lab 2 projector is not powering on. The next class starts in about 20 minutes.',
         textNotes: null,
         category: 'equipment',
         observations: ['Power LED unlit', 'Class starts in 20 min'],
@@ -31,9 +33,12 @@ void main() {
       expect(result.reason, contains('Upcoming operational deadline'));
     });
 
-    test('Spare equipment keywords trigger MEDIUM priority when no deadline present', () {
+    test(
+        'Spare equipment keywords trigger MEDIUM priority when no deadline present',
+        () {
       final result = PolicyEngine.evaluate(
-        rawVoiceText: 'Projector flickering occasionally. We have a spare cable in the equipment room.',
+        rawVoiceText:
+            'Projector flickering occasionally. We have a spare cable in the equipment room.',
         textNotes: null,
         category: 'equipment',
         observations: ['Flickering display'],
