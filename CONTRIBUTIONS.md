@@ -140,4 +140,16 @@ This file tracks all genuine contributions.
   - `mobile/test/unit/prompt_injection_sanitizer_test.dart`
   - `CONTRIBUTIONS.md`
 - **Tests performed**: `flutter analyze` clean (0 issues), 3 unit tests passed, 119 total tests passed.
+- **Commit**: `7576d99`
+
+### Contribution 11
+- **Title**: Implement EvidenceGroundingCalculator for multimodal claim verification
+- **Category**: AI / Domain
+- **Problem**: Generated Action Packets may contain ungrounded or hallucinated claims that lack supporting evidence links or transcript provenance.
+- **Solution**: Implemented `EvidenceGroundingCalculator` and `EvidenceGroundingResult` to evaluate the ratio of grounded facts versus ungrounded claims, calculate grounding scores (0.0 to 1.0), assign confidence states (`Verified`, `High Confidence`, `Needs Review`), and list ungrounded claims. Added unit test suite `evidence_grounding_calculator_test.dart`.
+- **Files changed**:
+  - `mobile/lib/features/ai/evidence_grounding_calculator.dart`
+  - `mobile/test/unit/evidence_grounding_calculator_test.dart`
+  - `CONTRIBUTIONS.md`
+- **Tests performed**: `flutter analyze` clean (0 issues), 2 unit tests passed, 121 total tests passed.
 - **Commit**: Pending
