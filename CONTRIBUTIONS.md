@@ -115,4 +115,16 @@ This file tracks all genuine contributions.
   - `mobile/test/*`
   - `CONTRIBUTIONS.md`
 - **Tests performed**: `dart format --output=none --set-exit-if-changed .` clean (exit code 0), `flutter analyze` clean, 114 total tests passed.
+- **Commit**: `ff6e9b1`
+
+### Contribution 09
+- **Title**: Add SyncOutboxItem Drift database DAO converter
+- **Category**: Database / Storage
+- **Problem**: The Drift SQLite database defines `SyncOutboxItems` table, but lacked Data Access Object (DAO) converter helpers to transform between domain `OutboxOperation` entities and Drift `SyncOutboxItem` / `SyncOutboxItemsCompanion` database representations.
+- **Solution**: Implemented `SyncOutboxItemConverter` with lossless serialization methods `toCompanion` and `toDomain`. Added unit test suite `sync_outbox_item_converter_test.dart`.
+- **Files changed**:
+  - `mobile/lib/core/storage/sync_outbox_item_converter.dart`
+  - `mobile/test/unit/sync_outbox_item_converter_test.dart`
+  - `CONTRIBUTIONS.md`
+- **Tests performed**: `flutter analyze` clean (0 issues), 2 unit tests passed, 116 total tests passed.
 - **Commit**: Pending
