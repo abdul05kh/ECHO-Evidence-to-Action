@@ -201,3 +201,15 @@ This file tracks all genuine contributions.
   - `CONTRIBUTIONS.md`
 - **Tests performed**: `flutter analyze` clean (0 issues), 3 unit tests passed, 128 total tests passed.
 - **Commit**: Pending
+
+### Contribution 16
+- **Title**: Add TaskEventAuditLogger helper
+- **Category**: Features / Storage & Audit
+- **Problem**: Task state changes (creation, claim, evidence attachment, completion, sync) lacked a structured audit logging mechanism for forensic tracking and compliance verification.
+- **Solution**: Implemented `TaskEventAuditLogger` and `TaskAuditEvent` model with timestamped event logging, task ID filtering, JSON serialization, and Riverpod provider support. Added unit test suite `task_event_audit_logger_test.dart`.
+- **Files changed**:
+  - `mobile/lib/core/storage/task_event_audit_logger.dart`
+  - `mobile/test/unit/task_event_audit_logger_test.dart`
+  - `CONTRIBUTIONS.md`
+- **Tests performed**: `flutter analyze` clean (0 issues), 3 unit tests passed, 131 total tests passed.
+- **Commit**: Pending
