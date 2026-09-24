@@ -1,3 +1,4 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'outbox_operation.dart';
 
 /// Summary statistics for outbox state diagnostic monitoring.
@@ -175,3 +176,5 @@ class SyncOutboxManager {
     _operations.clear();
   }
 }
+
+final syncOutboxManagerProvider = Provider((ref) => SyncOutboxManager());

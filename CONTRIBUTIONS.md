@@ -225,3 +225,16 @@ This file tracks all genuine contributions.
   - `CONTRIBUTIONS.md`
 - **Tests performed**: `flutter analyze` clean (0 issues), 3 unit tests passed, 134 total tests passed.
 - **Commit**: Pending
+
+### Contribution 18
+- **Title**: Implement BackgroundSyncWorker service
+- **Category**: Features / Network & Sync
+- **Problem**: Outbox items queued during offline operation required manual triggering or fragmented sync calls across screens.
+- **Solution**: Implemented `BackgroundSyncWorker` coordinating `SyncOutboxManager` and `NetworkConnectivityMonitor` for automatic background queue processing when network connectivity is active. Added unit test suite `background_sync_worker_test.dart`.
+- **Files changed**:
+  - `mobile/lib/core/sync/background_sync_worker.dart`
+  - `mobile/lib/core/sync/sync_outbox_manager.dart`
+  - `mobile/test/unit/background_sync_worker_test.dart`
+  - `CONTRIBUTIONS.md`
+- **Tests performed**: `flutter analyze` clean (0 issues), 2 unit tests passed, 136 total tests passed.
+- **Commit**: Pending
