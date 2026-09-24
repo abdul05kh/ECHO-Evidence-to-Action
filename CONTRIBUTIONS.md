@@ -91,4 +91,16 @@ This file tracks all genuine contributions.
   - `mobile/test/screens/home_queue_screen_test.dart`
   - `CONTRIBUTIONS.md`
 - **Tests performed**: `flutter analyze` clean (0 issues), 6 unit tests in `search_filter_state_test.dart` passed, 108 total tests passed.
+- **Commit**: `b1b20e2`
+
+### Contribution 07
+- **Title**: Implement structured EchoLogger utility and in-memory diagnostic log ring buffer
+- **Category**: Core / Utilities & Diagnostics
+- **Problem**: Diagnostic logs across AI runtime, storage database, STT transcriber, and outbox sync lacked standard formatting, log level filtering, category tagging, error stack trace capture, and in-memory log buffer retention for diagnostic inspection.
+- **Solution**: Implemented `LogLevel` enum, `LogEntry` data model, and `EchoLogger` service featuring configurable ring-buffer in-memory retention (default 200 logs), category tagging (`[AI]`, `[SYNC]`, `[STORAGE]`, `[STT]`, `[UI]`), log level thresholds, text export generator, and broadcast stream listener support.
+- **Files changed**:
+  - `mobile/lib/core/utils/echo_logger.dart`
+  - `mobile/test/unit/echo_logger_test.dart`
+  - `CONTRIBUTIONS.md`
+- **Tests performed**: `flutter analyze` clean (0 issues), 6 unit tests in `echo_logger_test.dart` passed, 114 total tests passed.
 - **Commit**: Pending
