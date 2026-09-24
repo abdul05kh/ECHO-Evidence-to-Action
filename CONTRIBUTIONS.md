@@ -176,4 +176,16 @@ This file tracks all genuine contributions.
   - `mobile/test/unit/csv_exporter_test.dart`
   - `CONTRIBUTIONS.md`
 - **Tests performed**: `flutter analyze` clean (0 issues), 2 unit tests passed, 124 total tests passed.
+- **Commit**: `471f170`
+
+### Contribution 14
+- **Title**: Add JSONSchemaExporter to OfficeKitBridge
+- **Category**: Features / Bridge
+- **Problem**: Enterprise REST backends require strict JSON payloads formatted according to the ECHO Action Packet API contract.
+- **Solution**: Implemented `JSONSchemaExporter.toJsonSchemaString(packet)` generating JSON schema payloads with schema URI and generation metadata. Added unit test suite `json_schema_exporter_test.dart`.
+- **Files changed**:
+  - `mobile/lib/features/bridge/json_schema_exporter.dart`
+  - `mobile/test/unit/json_schema_exporter_test.dart`
+  - `CONTRIBUTIONS.md`
+- **Tests performed**: `flutter analyze` clean (0 issues), 1 unit test passed, 125 total tests passed.
 - **Commit**: Pending
