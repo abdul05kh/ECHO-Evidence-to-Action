@@ -152,4 +152,16 @@ This file tracks all genuine contributions.
   - `mobile/test/unit/evidence_grounding_calculator_test.dart`
   - `CONTRIBUTIONS.md`
 - **Tests performed**: `flutter analyze` clean (0 issues), 2 unit tests passed, 121 total tests passed.
+- **Commit**: `7a7c111`
+
+### Contribution 12
+- **Title**: Add MarkdownExporter to OfficeKitBridge
+- **Category**: Features / Bridge
+- **Problem**: `OfficeKitBridge` formatted plain text for clipboard export, but lacked structured GitHub Flavored Markdown (GFM) export capability with tables, blockquotes, and task checkboxes for external tool integration.
+- **Solution**: Implemented `MarkdownExporter.toMarkdown(packet)` generating clean GFM reports formatted with property tables, summary quotes, fact lists, and task checkboxes. Added unit test suite `markdown_exporter_test.dart`.
+- **Files changed**:
+  - `mobile/lib/features/bridge/markdown_exporter.dart`
+  - `mobile/test/unit/markdown_exporter_test.dart`
+  - `CONTRIBUTIONS.md`
+- **Tests performed**: `flutter analyze` clean (0 issues), 1 unit test passed, 122 total tests passed.
 - **Commit**: Pending
