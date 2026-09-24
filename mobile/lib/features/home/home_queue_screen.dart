@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import '../../app/theme.dart';
 import '../../shared/widgets/status_pill.dart';
 import '../ai/local_llm_provider.dart';
@@ -551,6 +551,43 @@ class _HomeQueueScreenState extends State<HomeQueueScreen> {
                         _filterState = isSel
                             ? _filterState.copyWith(clearCategory: true)
                             : _filterState.copyWith(selectedCategory: cat);
+                      });
+                    },
+                  ),
+                );
+              }),
+            ],
+          ),
+        ),
+        const SizedBox(height: 6),
+        // Priority Filter Chips
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            children: [
+              _filterChip(
+                label: 'All Priorities',
+                isSelected: _filterState.selectedPriority == null,
+                onSelected: () {
+                  setState(() {
+                    _filterState = _filterState.copyWith(clearPriority: true);
+                  });
+                },
+              ),
+              const SizedBox(width: 6),
+              ...['low', 'medium', 'high', 'urgent'].map((prio) {
+                final isSel = _filterState.selectedPriority?.toLowerCase() ==
+                    prio.toLowerCase();
+                return Padding(
+                  padding: const EdgeInsets.only(right: 6),
+                  child: _filterChip(
+                    label: prio.toUpperCase(),
+                    isSelected: isSel,
+                    onSelected: () {
+                      setState(() {
+                        _filterState = isSel
+                            ? _filterState.copyWith(clearPriority: true)
+                            : _filterState.copyWith(selectedPriority: prio);
                       });
                     },
                   ),
