@@ -238,3 +238,15 @@ This file tracks all genuine contributions.
   - `CONTRIBUTIONS.md`
 - **Tests performed**: `flutter analyze` clean (0 issues), 2 unit tests passed, 136 total tests passed.
 - **Commit**: Pending
+
+### Contribution 19
+- **Title**: Add priority filter selector chips to HomeQueueScreen
+- **Category**: Features / UI & Filtering
+- **Problem**: `HomeQueueScreen` only allowed filtering by category and query, forcing users to scroll through large queues to find urgent or high priority work orders.
+- **Solution**: Added interactive priority filter selector chips (`ALL PRIORITIES`, `LOW`, `MEDIUM`, `HIGH`, `URGENT`) to `HomeQueueScreen` UI connected to `SearchFilterState`. Added unit test suite `home_queue_priority_filter_test.dart`.
+- **Files changed**:
+  - `mobile/lib/features/home/home_queue_screen.dart`
+  - `mobile/test/unit/home_queue_priority_filter_test.dart`
+  - `CONTRIBUTIONS.md`
+- **Tests performed**: `flutter analyze` clean (0 issues), 3 unit tests passed, 139 total tests passed.
+- **Commit**: Pending
