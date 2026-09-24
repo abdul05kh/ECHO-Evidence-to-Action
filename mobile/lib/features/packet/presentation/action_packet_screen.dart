@@ -66,19 +66,24 @@ class _ActionPacketScreenState extends State<ActionPacketScreen> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text('Title', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
+              const Text('Title',
+                  style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
               const SizedBox(height: 6),
               TextField(
                 controller: _titleController,
                 decoration: InputDecoration(
                   filled: true,
                   fillColor: EchoTheme.secondarySurface,
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide.none),
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: BorderSide.none),
+                  contentPadding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                 ),
               ),
               const SizedBox(height: 14),
-              const Text('Summary', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
+              const Text('Summary',
+                  style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
               const SizedBox(height: 6),
               TextField(
                 controller: _summaryController,
@@ -86,7 +91,9 @@ class _ActionPacketScreenState extends State<ActionPacketScreen> {
                 decoration: InputDecoration(
                   filled: true,
                   fillColor: EchoTheme.secondarySurface,
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide.none),
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: BorderSide.none),
                   contentPadding: const EdgeInsets.all(12),
                 ),
               ),
@@ -96,7 +103,8 @@ class _ActionPacketScreenState extends State<ActionPacketScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Cancel', style: TextStyle(color: EchoTheme.textSecondary)),
+            child: const Text('Cancel',
+                style: TextStyle(color: EchoTheme.textSecondary)),
           ),
           ElevatedButton(
             onPressed: () {
@@ -145,7 +153,8 @@ class _ActionPacketScreenState extends State<ActionPacketScreen> {
             color: EchoTheme.accentGoldLight,
             child: Row(
               children: [
-                const Icon(Icons.timer_outlined, size: 16, color: EchoTheme.accentGoldDark),
+                const Icon(Icons.timer_outlined,
+                    size: 16, color: EchoTheme.accentGoldDark),
                 const SizedBox(width: 8),
                 Text(
                   'CAPTURE → ACTION PACKET: ${((_packet.captureDurationMs ?? 38400) / 1000).toStringAsFixed(1)} SEC',
@@ -167,19 +176,24 @@ class _ActionPacketScreenState extends State<ActionPacketScreen> {
               padding: const EdgeInsets.all(16),
               children: [
                 // Evidence Warning Banner if Needs Review / Unverified
-                if (_packet.confidenceState.toUpperCase().contains('NEEDS REVIEW') || _packet.status == 'needs_review') ...[
+                if (_packet.confidenceState
+                        .toUpperCase()
+                        .contains('NEEDS REVIEW') ||
+                    _packet.status == 'needs_review') ...[
                   Container(
                     margin: const EdgeInsets.only(bottom: 14),
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
                       color: EchoTheme.warningAmberLight,
                       borderRadius: BorderRadius.circular(10),
-                      border: Border.all(color: EchoTheme.warningAmber.withValues(alpha: 0.5)),
+                      border: Border.all(
+                          color: EchoTheme.warningAmber.withValues(alpha: 0.5)),
                     ),
                     child: const Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Icon(Icons.warning_amber_rounded, color: EchoTheme.warningAmber, size: 20),
+                        Icon(Icons.warning_amber_rounded,
+                            color: EchoTheme.warningAmber, size: 20),
                         SizedBox(width: 10),
                         Expanded(
                           child: Column(
@@ -259,7 +273,8 @@ class _ActionPacketScreenState extends State<ActionPacketScreen> {
                         child: Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Icon(Icons.policy_outlined, size: 16, color: EchoTheme.actionBlue),
+                            const Icon(Icons.policy_outlined,
+                                size: 16, color: EchoTheme.actionBlue),
                             const SizedBox(width: 8),
                             Expanded(
                               child: Column(
@@ -295,13 +310,15 @@ class _ActionPacketScreenState extends State<ActionPacketScreen> {
                 const SizedBox(height: 16),
 
                 // Grounded Evidence Section
-                _buildSectionHeader('CAPTURED EVIDENCE', Icons.perm_media_outlined),
+                _buildSectionHeader(
+                    'CAPTURED EVIDENCE', Icons.perm_media_outlined),
                 const SizedBox(height: 8),
                 _buildEvidenceMediaRow(),
                 const SizedBox(height: 18),
 
                 // Observed Facts Section (with Tap to Trace Provenance)
-                _buildSectionHeader('OBSERVED FACTS', Icons.visibility_outlined, subtitle: 'Tap fact to trace supporting media'),
+                _buildSectionHeader('OBSERVED FACTS', Icons.visibility_outlined,
+                    subtitle: 'Tap fact to trace supporting media'),
                 const SizedBox(height: 8),
                 ..._packet.observations.map((obs) {
                   return InkWell(
@@ -326,7 +343,8 @@ class _ActionPacketScreenState extends State<ActionPacketScreen> {
                           Row(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Icon(Icons.check_circle_outline, size: 16, color: EchoTheme.successGreen),
+                              const Icon(Icons.check_circle_outline,
+                                  size: 16, color: EchoTheme.successGreen),
                               const SizedBox(width: 8),
                               Expanded(
                                 child: Text(
@@ -345,7 +363,9 @@ class _ActionPacketScreenState extends State<ActionPacketScreen> {
                             Wrap(
                               spacing: 6,
                               runSpacing: 4,
-                              children: obs.evidenceLinks.map((link) => EvidenceChip(link: link)).toList(),
+                              children: obs.evidenceLinks
+                                  .map((link) => EvidenceChip(link: link))
+                                  .toList(),
                             ),
                           ],
                         ],
@@ -356,7 +376,8 @@ class _ActionPacketScreenState extends State<ActionPacketScreen> {
                 const SizedBox(height: 18),
 
                 // Inferences Section (Separated from facts)
-                _buildSectionHeader('AI INFERENCES', Icons.psychology_outlined, subtitle: 'Derived assessments — not ground facts'),
+                _buildSectionHeader('AI INFERENCES', Icons.psychology_outlined,
+                    subtitle: 'Derived assessments — not ground facts'),
                 const SizedBox(height: 8),
                 ..._packet.inferences.map((inf) {
                   return InkWell(
@@ -382,7 +403,8 @@ class _ActionPacketScreenState extends State<ActionPacketScreen> {
                           Row(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Icon(Icons.auto_awesome_rounded, size: 16, color: EchoTheme.accentGoldDark),
+                              const Icon(Icons.auto_awesome_rounded,
+                                  size: 16, color: EchoTheme.accentGoldDark),
                               const SizedBox(width: 8),
                               Expanded(
                                 child: Text(
@@ -416,7 +438,9 @@ class _ActionPacketScreenState extends State<ActionPacketScreen> {
                 const SizedBox(height: 18),
 
                 // Missing Information Section (Never Hallucinate)
-                _buildSectionHeader('MISSING INFORMATION', Icons.help_outline_rounded, subtitle: 'Required before safe completion'),
+                _buildSectionHeader(
+                    'MISSING INFORMATION', Icons.help_outline_rounded,
+                    subtitle: 'Required before safe completion'),
                 const SizedBox(height: 8),
                 ..._packet.missingInformation.map((missing) {
                   return MissingInfoCard(item: missing);
@@ -424,7 +448,8 @@ class _ActionPacketScreenState extends State<ActionPacketScreen> {
                 const SizedBox(height: 18),
 
                 // Suggested Actions
-                _buildSectionHeader('RECOMMENDED ACTIONS', Icons.format_list_numbered_rounded),
+                _buildSectionHeader(
+                    'RECOMMENDED ACTIONS', Icons.format_list_numbered_rounded),
                 const SizedBox(height: 8),
                 ..._packet.suggestedActions.map((act) {
                   return Container(
@@ -489,10 +514,12 @@ class _ActionPacketScreenState extends State<ActionPacketScreen> {
                 const SizedBox(height: 18),
 
                 // Operational Checklist
-                _buildSectionHeader('OPERATIONAL CHECKLIST', Icons.fact_check_outlined),
+                _buildSectionHeader(
+                    'OPERATIONAL CHECKLIST', Icons.fact_check_outlined),
                 const SizedBox(height: 8),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
                     color: EchoTheme.surfaceColor,
                     borderRadius: BorderRadius.circular(12),
@@ -505,9 +532,13 @@ class _ActionPacketScreenState extends State<ActionPacketScreen> {
                         child: Row(
                           children: [
                             Icon(
-                              chk.isCompleted ? Icons.check_box_rounded : Icons.check_box_outline_blank_rounded,
+                              chk.isCompleted
+                                  ? Icons.check_box_rounded
+                                  : Icons.check_box_outline_blank_rounded,
                               size: 18,
-                              color: chk.isCompleted ? EchoTheme.successGreen : EchoTheme.textTertiary,
+                              color: chk.isCompleted
+                                  ? EchoTheme.successGreen
+                                  : EchoTheme.textTertiary,
                             ),
                             const SizedBox(width: 10),
                             Expanded(
@@ -516,7 +547,9 @@ class _ActionPacketScreenState extends State<ActionPacketScreen> {
                                 style: TextStyle(
                                   fontSize: 13.5,
                                   color: EchoTheme.textPrimary,
-                                  decoration: chk.isCompleted ? TextDecoration.lineThrough : null,
+                                  decoration: chk.isCompleted
+                                      ? TextDecoration.lineThrough
+                                      : null,
                                 ),
                               ),
                             ),
@@ -680,9 +713,12 @@ class _ActionPacketScreenState extends State<ActionPacketScreen> {
                 child: const Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(Icons.photo_camera, size: 11, color: EchoTheme.actionBlue),
+                    Icon(Icons.photo_camera,
+                        size: 11, color: EchoTheme.actionBlue),
                     SizedBox(width: 4),
-                    Text('Photo #01', style: TextStyle(fontSize: 10.5, fontWeight: FontWeight.w600)),
+                    Text('Photo #01',
+                        style: TextStyle(
+                            fontSize: 10.5, fontWeight: FontWeight.w600)),
                   ],
                 ),
               ),
@@ -694,12 +730,16 @@ class _ActionPacketScreenState extends State<ActionPacketScreen> {
           Expanded(
             child: Builder(
               builder: (context) {
-                final voiceObs = _packet.observations.where(
-                  (o) => o.evidenceLinks.any((l) => l.type == 'voice'),
-                ).firstOrNull;
+                final voiceObs = _packet.observations
+                    .where(
+                      (o) => o.evidenceLinks.any((l) => l.type == 'voice'),
+                    )
+                    .firstOrNull;
                 final voiceExcerpt = voiceObs?.evidenceLinks
-                    .firstWhere((l) => l.type == 'voice')
-                    .excerpt ?? voiceObs?.text ?? 'Voice note audio attached';
+                        .firstWhere((l) => l.type == 'voice')
+                        .excerpt ??
+                    voiceObs?.text ??
+                    'Voice note audio attached';
 
                 return Container(
                   height: 100,
@@ -715,14 +755,19 @@ class _ActionPacketScreenState extends State<ActionPacketScreen> {
                     children: [
                       const Row(
                         children: [
-                          Icon(Icons.mic_rounded, size: 16, color: EchoTheme.warningAmber),
+                          Icon(Icons.mic_rounded,
+                              size: 16, color: EchoTheme.warningAmber),
                           SizedBox(width: 6),
                           Text(
                             'Voice Note #01',
-                            style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700),
+                            style: TextStyle(
+                                fontSize: 12, fontWeight: FontWeight.w700),
                           ),
                           Spacer(),
-                          Text('Audio', style: TextStyle(fontSize: 11, color: EchoTheme.textSecondary)),
+                          Text('Audio',
+                              style: TextStyle(
+                                  fontSize: 11,
+                                  color: EchoTheme.textSecondary)),
                         ],
                       ),
                       const SizedBox(height: 6),
@@ -730,7 +775,10 @@ class _ActionPacketScreenState extends State<ActionPacketScreen> {
                         '"$voiceExcerpt"',
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(fontSize: 11.5, fontStyle: FontStyle.italic, color: EchoTheme.textSecondary),
+                        style: const TextStyle(
+                            fontSize: 11.5,
+                            fontStyle: FontStyle.italic,
+                            color: EchoTheme.textSecondary),
                       ),
                     ],
                   ),

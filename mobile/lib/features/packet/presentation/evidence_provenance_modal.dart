@@ -65,8 +65,12 @@ class EvidenceProvenanceModal extends StatelessWidget {
           Row(
             children: [
               Icon(
-                isObservation ? Icons.visibility_rounded : Icons.psychology_rounded,
-                color: isObservation ? EchoTheme.actionBlue : EchoTheme.accentGoldDark,
+                isObservation
+                    ? Icons.visibility_rounded
+                    : Icons.psychology_rounded,
+                color: isObservation
+                    ? EchoTheme.actionBlue
+                    : EchoTheme.accentGoldDark,
                 size: 20,
               ),
               const SizedBox(width: 8),
@@ -76,7 +80,9 @@ class EvidenceProvenanceModal extends StatelessWidget {
                   fontSize: 13,
                   fontWeight: FontWeight.w700,
                   letterSpacing: 0.5,
-                  color: isObservation ? EchoTheme.actionBlue : EchoTheme.accentGoldDark,
+                  color: isObservation
+                      ? EchoTheme.actionBlue
+                      : EchoTheme.accentGoldDark,
                 ),
               ),
             ],
@@ -157,7 +163,9 @@ class EvidenceProvenanceModal extends StatelessWidget {
                     Icon(
                       link.type == 'photo'
                           ? Icons.photo_camera_rounded
-                          : (link.type == 'voice' ? Icons.mic_rounded : Icons.description_rounded),
+                          : (link.type == 'voice'
+                              ? Icons.mic_rounded
+                              : Icons.description_rounded),
                       size: 18,
                       color: EchoTheme.actionBlue,
                     ),
@@ -179,7 +187,8 @@ class EvidenceProvenanceModal extends StatelessWidget {
                               ),
                               if (link.timestampSec != null)
                                 Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 6, vertical: 2),
                                   decoration: BoxDecoration(
                                     color: EchoTheme.secondarySurface,
                                     borderRadius: BorderRadius.circular(4),

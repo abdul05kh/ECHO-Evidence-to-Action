@@ -7,7 +7,8 @@ void main() {
   group('EvidenceChip Widget Tests', () {
     testWidgets('renders photo evidence link chip correctly',
         (WidgetTester tester) async {
-      const link = EvidenceLink(evidenceId: 'photo_1', type: 'photo', label: 'PHOTO_001');
+      const link = EvidenceLink(
+          evidenceId: 'photo_1', type: 'photo', label: 'PHOTO_001');
 
       await tester.pumpWidget(
         const MaterialApp(
@@ -23,8 +24,11 @@ void main() {
 
     testWidgets('renders voice evidence link chip with timestamp',
         (WidgetTester tester) async {
-      const link =
-          EvidenceLink(evidenceId: 'voice_1', type: 'voice', label: 'VOICE_001', timestampSec: 14);
+      const link = EvidenceLink(
+          evidenceId: 'voice_1',
+          type: 'voice',
+          label: 'VOICE_001',
+          timestampSec: 14);
 
       await tester.pumpWidget(
         const MaterialApp(

@@ -103,4 +103,16 @@ This file tracks all genuine contributions.
   - `mobile/test/unit/echo_logger_test.dart`
   - `CONTRIBUTIONS.md`
 - **Tests performed**: `flutter analyze` clean (0 issues), 6 unit tests in `echo_logger_test.dart` passed, 114 total tests passed.
+- **Commit**: `1fe1fe0`
+
+### Contribution 08
+- **Title**: Enforce repository-wide dart format compliance for CI pipeline
+- **Category**: CI/CD & Code Quality
+- **Problem**: GitHub Actions CI workflow step `dart format --output=none --set-exit-if-changed .` failed because legacy source files in `mobile/lib/features/` and `mobile/test/` contained non-standard line formatting.
+- **Solution**: Formatted all Dart source files across `mobile/` with `dart format .` ensuring 100% clean exit for `dart format --set-exit-if-changed .` and GitHub Actions CI workflow.
+- **Files changed**:
+  - `mobile/lib/features/*`
+  - `mobile/test/*`
+  - `CONTRIBUTIONS.md`
+- **Tests performed**: `dart format --output=none --set-exit-if-changed .` clean (exit code 0), `flutter analyze` clean, 114 total tests passed.
 - **Commit**: Pending

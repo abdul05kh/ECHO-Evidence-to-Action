@@ -15,20 +15,20 @@ class EvidenceLink {
   });
 
   Map<String, dynamic> toJson() => {
-    'evidence_id': evidenceId,
-    'type': type,
-    'label': label,
-    if (excerpt != null) 'excerpt': excerpt,
-    if (timestampSec != null) 'timestamp_sec': timestampSec,
-  };
+        'evidence_id': evidenceId,
+        'type': type,
+        'label': label,
+        if (excerpt != null) 'excerpt': excerpt,
+        if (timestampSec != null) 'timestamp_sec': timestampSec,
+      };
 
   factory EvidenceLink.fromJson(Map<String, dynamic> json) => EvidenceLink(
-    evidenceId: json['evidence_id'] ?? json['id'] ?? '',
-    type: json['type'] ?? 'photo',
-    label: json['label'] ?? 'Evidence',
-    excerpt: json['excerpt'],
-    timestampSec: json['timestamp_sec'],
-  );
+        evidenceId: json['evidence_id'] ?? json['id'] ?? '',
+        type: json['type'] ?? 'photo',
+        label: json['label'] ?? 'Evidence',
+        excerpt: json['excerpt'],
+        timestampSec: json['timestamp_sec'],
+      );
 
   @override
   bool operator ==(Object other) =>
@@ -58,19 +58,19 @@ class ObservedFact {
   String get statement => text;
 
   Map<String, dynamic> toJson() => {
-    'text': text,
-    'fact': text,
-    'evidence_links': evidenceLinks.map((e) => e.toJson()).toList(),
-    'confidence': confidence,
-  };
+        'text': text,
+        'fact': text,
+        'evidence_links': evidenceLinks.map((e) => e.toJson()).toList(),
+        'confidence': confidence,
+      };
 
   factory ObservedFact.fromJson(Map<String, dynamic> json) => ObservedFact(
-    text: json['text'] ?? json['fact'] ?? json['statement'] ?? '',
-    evidenceLinks: (json['evidence_links'] as List? ?? [])
-        .map((e) => EvidenceLink.fromJson(e as Map<String, dynamic>))
-        .toList(),
-    confidence: (json['confidence'] as num?)?.toDouble() ?? 1.0,
-  );
+        text: json['text'] ?? json['fact'] ?? json['statement'] ?? '',
+        evidenceLinks: (json['evidence_links'] as List? ?? [])
+            .map((e) => EvidenceLink.fromJson(e as Map<String, dynamic>))
+            .toList(),
+        confidence: (json['confidence'] as num?)?.toDouble() ?? 1.0,
+      );
 
   @override
   bool operator ==(Object other) =>
@@ -100,29 +100,30 @@ class InferenceItem {
 
   String get inference => text;
   List<String> get groundedFacts => [basis];
-  double get confidence => confidenceState == 'high'
-      ? 0.9
-      : (confidenceState == 'low' ? 0.4 : 0.7);
+  double get confidence =>
+      confidenceState == 'high' ? 0.9 : (confidenceState == 'low' ? 0.4 : 0.7);
 
   Map<String, dynamic> toJson() => {
-    'text': text,
-    'inference': text,
-    'basis': basis,
-    'confidence_state': confidenceState,
-    'supporting_evidence': supportingEvidence.map((e) => e.toJson()).toList(),
-  };
+        'text': text,
+        'inference': text,
+        'basis': basis,
+        'confidence_state': confidenceState,
+        'supporting_evidence':
+            supportingEvidence.map((e) => e.toJson()).toList(),
+      };
 
   factory InferenceItem.fromJson(Map<String, dynamic> json) => InferenceItem(
-    text: json['text'] ?? json['inference'] ?? '',
-    basis: json['basis'] ??
-        (json['grounded_facts'] is List && (json['grounded_facts'] as List).isNotEmpty
-            ? (json['grounded_facts'] as List).first.toString()
-            : 'Inferred from context'),
-    confidenceState: json['confidence_state'] ?? 'moderate',
-    supportingEvidence: (json['supporting_evidence'] as List? ?? [])
-        .map((e) => EvidenceLink.fromJson(e as Map<String, dynamic>))
-        .toList(),
-  );
+        text: json['text'] ?? json['inference'] ?? '',
+        basis: json['basis'] ??
+            (json['grounded_facts'] is List &&
+                    (json['grounded_facts'] as List).isNotEmpty
+                ? (json['grounded_facts'] as List).first.toString()
+                : 'Inferred from context'),
+        confidenceState: json['confidence_state'] ?? 'moderate',
+        supportingEvidence: (json['supporting_evidence'] as List? ?? [])
+            .map((e) => EvidenceLink.fromJson(e as Map<String, dynamic>))
+            .toList(),
+      );
 
   @override
   bool operator ==(Object other) =>
@@ -172,21 +173,22 @@ class MissingInfoItem {
   }
 
   Map<String, dynamic> toJson() => {
-    'prompt': prompt,
-    'question': prompt,
-    'context_reason': contextReason,
-    if (suggestedCheck != null) 'suggested_check': suggestedCheck,
-    'is_resolved': isResolved,
-    if (resolutionText != null) 'resolution_text': resolutionText,
-  };
+        'prompt': prompt,
+        'question': prompt,
+        'context_reason': contextReason,
+        if (suggestedCheck != null) 'suggested_check': suggestedCheck,
+        'is_resolved': isResolved,
+        if (resolutionText != null) 'resolution_text': resolutionText,
+      };
 
-  factory MissingInfoItem.fromJson(Map<String, dynamic> json) => MissingInfoItem(
-    prompt: json['prompt'] ?? json['question'] ?? '',
-    contextReason: json['context_reason'] ?? '',
-    suggestedCheck: json['suggested_check'],
-    isResolved: json['is_resolved'] ?? false,
-    resolutionText: json['resolution_text'],
-  );
+  factory MissingInfoItem.fromJson(Map<String, dynamic> json) =>
+      MissingInfoItem(
+        prompt: json['prompt'] ?? json['question'] ?? '',
+        contextReason: json['context_reason'] ?? '',
+        suggestedCheck: json['suggested_check'],
+        isResolved: json['is_resolved'] ?? false,
+        resolutionText: json['resolution_text'],
+      );
 
   @override
   bool operator ==(Object other) =>
@@ -198,7 +200,8 @@ class MissingInfoItem {
           isResolved == other.isResolved;
 
   @override
-  int get hashCode => prompt.hashCode ^ contextReason.hashCode ^ isResolved.hashCode;
+  int get hashCode =>
+      prompt.hashCode ^ contextReason.hashCode ^ isResolved.hashCode;
 }
 
 /// Operational step suggested by ECHO
@@ -216,18 +219,19 @@ class SuggestedAction {
   });
 
   Map<String, dynamic> toJson() => {
-    'step': step,
-    'action': action,
-    if (safetyNote != null) 'safety_note': safetyNote,
-    'confidence': confidence,
-  };
+        'step': step,
+        'action': action,
+        if (safetyNote != null) 'safety_note': safetyNote,
+        'confidence': confidence,
+      };
 
-  factory SuggestedAction.fromJson(Map<String, dynamic> json) => SuggestedAction(
-    step: json['step'] ?? 1,
-    action: json['action'] ?? '',
-    safetyNote: json['safety_note'],
-    confidence: (json['confidence'] as num?)?.toDouble() ?? 0.9,
-  );
+  factory SuggestedAction.fromJson(Map<String, dynamic> json) =>
+      SuggestedAction(
+        step: json['step'] ?? 1,
+        action: json['action'] ?? '',
+        safetyNote: json['safety_note'],
+        confidence: (json['confidence'] as num?)?.toDouble() ?? 0.9,
+      );
 
   @override
   bool operator ==(Object other) =>
@@ -266,16 +270,17 @@ class ChecklistItemData {
   }
 
   Map<String, dynamic> toJson() => {
-    'id': id,
-    'text': text,
-    'is_completed': isCompleted,
-  };
+        'id': id,
+        'text': text,
+        'is_completed': isCompleted,
+      };
 
-  factory ChecklistItemData.fromJson(Map<String, dynamic> json) => ChecklistItemData(
-    id: json['id'] ?? '',
-    text: json['text'] ?? '',
-    isCompleted: json['is_completed'] ?? false,
-  );
+  factory ChecklistItemData.fromJson(Map<String, dynamic> json) =>
+      ChecklistItemData(
+        id: json['id'] ?? '',
+        text: json['text'] ?? '',
+        isCompleted: json['is_completed'] ?? false,
+      );
 
   @override
   bool operator ==(Object other) =>
@@ -295,9 +300,11 @@ class ActionPacketModel {
   final String id;
   final String workspaceId;
   final int version;
-  final String status; // 'draft', 'processing', 'needs_review', 'ready', 'approved'
+  final String
+      status; // 'draft', 'processing', 'needs_review', 'ready', 'approved'
   final String title;
-  final String category; // 'equipment', 'facility', 'electrical', 'plumbing', 'safety'
+  final String
+      category; // 'equipment', 'facility', 'electrical', 'plumbing', 'safety'
   final String priority; // 'critical', 'high', 'medium', 'low'
   final String priorityReason;
   final String summary;
@@ -310,9 +317,11 @@ class ActionPacketModel {
   final String confidenceState; // 'Verified', 'High Confidence', 'Needs Review'
   final bool requiresHumanApproval;
   final int? captureDurationMs;
-  final String generationSource; // 'LOCAL_LLM', 'PROTOTYPE_RUNTIME', 'DETERMINISTIC_FALLBACK'
+  final String
+      generationSource; // 'LOCAL_LLM', 'PROTOTYPE_RUNTIME', 'DETERMINISTIC_FALLBACK'
   final String modelName;
-  final String runtimeMode; // 'LOCAL_DEVICE_RUNTIME', 'PROTOTYPE_RUNTIME', 'DETERMINISTIC_FALLBACK'
+  final String
+      runtimeMode; // 'LOCAL_DEVICE_RUNTIME', 'PROTOTYPE_RUNTIME', 'DETERMINISTIC_FALLBACK'
   final DateTime createdAt;
   final DateTime updatedAt;
 
@@ -342,12 +351,14 @@ class ActionPacketModel {
     required this.updatedAt,
   });
 
-  static String cleanTitle(String input, {String fallback = 'Untitled Action Packet'}) {
+  static String cleanTitle(String input,
+      {String fallback = 'Untitled Action Packet'}) {
     final trimmed = input.trim();
     return trimmed.isEmpty ? fallback : trimmed;
   }
 
-  static String cleanSummary(String input, {String fallback = 'No summary details provided.'}) {
+  static String cleanSummary(String input,
+      {String fallback = 'No summary details provided.'}) {
     final trimmed = input.trim();
     return trimmed.isEmpty ? fallback : trimmed;
   }
@@ -394,7 +405,8 @@ class ActionPacketModel {
       checklist: checklist ?? this.checklist,
       evidenceIds: evidenceIds ?? this.evidenceIds,
       confidenceState: confidenceState ?? this.confidenceState,
-      requiresHumanApproval: requiresHumanApproval ?? this.requiresHumanApproval,
+      requiresHumanApproval:
+          requiresHumanApproval ?? this.requiresHumanApproval,
       captureDurationMs: captureDurationMs ?? this.captureDurationMs,
       generationSource: generationSource ?? this.generationSource,
       modelName: modelName ?? this.modelName,
@@ -405,68 +417,75 @@ class ActionPacketModel {
   }
 
   Map<String, dynamic> toJson() => {
-    'id': id,
-    'packet_id': id,
-    'workspace_id': workspaceId,
-    'version': version,
-    'packet_version': version,
-    'status': status,
-    'title': cleanTitle(title),
-    'category': category,
-    'priority': priority,
-    'priority_reason': priorityReason,
-    'summary': cleanSummary(summary),
-    'observations': observations.map((o) => o.toJson()).toList(),
-    'inferences': inferences.map((i) => i.toJson()).toList(),
-    'missing_information': missingInformation.map((m) => m.toJson()).toList(),
-    'suggested_actions': suggestedActions.map((s) => s.toJson()).toList(),
-    'checklist': checklist.map((c) => c.toJson()).toList(),
-    'evidence_ids': evidenceIds,
-    'confidence_state': confidenceState,
-    'requires_human_approval': requiresHumanApproval,
-    if (captureDurationMs != null) 'capture_duration_ms': captureDurationMs,
-    'generation_source': generationSource,
-    'model_name': modelName,
-    'runtime_mode': runtimeMode,
-    'created_at': createdAt.toIso8601String(),
-    'updated_at': updatedAt.toIso8601String(),
-  };
+        'id': id,
+        'packet_id': id,
+        'workspace_id': workspaceId,
+        'version': version,
+        'packet_version': version,
+        'status': status,
+        'title': cleanTitle(title),
+        'category': category,
+        'priority': priority,
+        'priority_reason': priorityReason,
+        'summary': cleanSummary(summary),
+        'observations': observations.map((o) => o.toJson()).toList(),
+        'inferences': inferences.map((i) => i.toJson()).toList(),
+        'missing_information':
+            missingInformation.map((m) => m.toJson()).toList(),
+        'suggested_actions': suggestedActions.map((s) => s.toJson()).toList(),
+        'checklist': checklist.map((c) => c.toJson()).toList(),
+        'evidence_ids': evidenceIds,
+        'confidence_state': confidenceState,
+        'requires_human_approval': requiresHumanApproval,
+        if (captureDurationMs != null) 'capture_duration_ms': captureDurationMs,
+        'generation_source': generationSource,
+        'model_name': modelName,
+        'runtime_mode': runtimeMode,
+        'created_at': createdAt.toIso8601String(),
+        'updated_at': updatedAt.toIso8601String(),
+      };
 
-  factory ActionPacketModel.fromJson(Map<String, dynamic> json) => ActionPacketModel(
-    id: json['id'] ?? json['packet_id'] ?? '',
-    workspaceId: json['workspace_id'] ?? 'ws_default',
-    version: json['version'] ?? json['packet_version'] ?? 1,
-    status: json['status'] ?? 'draft',
-    title: cleanTitle(json['title'] ?? ''),
-    category: json['category'] ?? 'equipment',
-    priority: json['priority'] ?? 'medium',
-    priorityReason: json['priority_reason'] ?? 'Standard assessment',
-    summary: cleanSummary(json['summary'] ?? ''),
-    observations: (json['observations'] as List? ?? [])
-        .map((o) => ObservedFact.fromJson(o as Map<String, dynamic>))
-        .toList(),
-    inferences: (json['inferences'] as List? ?? [])
-        .map((i) => InferenceItem.fromJson(i as Map<String, dynamic>))
-        .toList(),
-    missingInformation: (json['missing_information'] as List? ?? [])
-        .map((m) => MissingInfoItem.fromJson(m as Map<String, dynamic>))
-        .toList(),
-    suggestedActions: (json['suggested_actions'] as List? ?? [])
-        .map((s) => SuggestedAction.fromJson(s as Map<String, dynamic>))
-        .toList(),
-    checklist: (json['checklist'] as List? ?? [])
-        .map((c) => ChecklistItemData.fromJson(c as Map<String, dynamic>))
-        .toList(),
-    evidenceIds: List<String>.from(json['evidence_ids'] ?? []),
-    confidenceState: json['confidence_state'] ?? 'High Confidence',
-    requiresHumanApproval: json['requires_human_approval'] ?? true,
-    captureDurationMs: json['capture_duration_ms'],
-    generationSource: json['generation_source'] ?? 'PROTOTYPE_RUNTIME',
-    modelName: json['model_name'] ?? 'ECHO Grounded Model Adapter (Prototype v1.0)',
-    runtimeMode: json['runtime_mode'] ?? 'PROTOTYPE_RUNTIME',
-    createdAt: json['created_at'] != null ? DateTime.parse(json['created_at']) : DateTime.now(),
-    updatedAt: json['updated_at'] != null ? DateTime.parse(json['updated_at']) : DateTime.now(),
-  );
+  factory ActionPacketModel.fromJson(Map<String, dynamic> json) =>
+      ActionPacketModel(
+        id: json['id'] ?? json['packet_id'] ?? '',
+        workspaceId: json['workspace_id'] ?? 'ws_default',
+        version: json['version'] ?? json['packet_version'] ?? 1,
+        status: json['status'] ?? 'draft',
+        title: cleanTitle(json['title'] ?? ''),
+        category: json['category'] ?? 'equipment',
+        priority: json['priority'] ?? 'medium',
+        priorityReason: json['priority_reason'] ?? 'Standard assessment',
+        summary: cleanSummary(json['summary'] ?? ''),
+        observations: (json['observations'] as List? ?? [])
+            .map((o) => ObservedFact.fromJson(o as Map<String, dynamic>))
+            .toList(),
+        inferences: (json['inferences'] as List? ?? [])
+            .map((i) => InferenceItem.fromJson(i as Map<String, dynamic>))
+            .toList(),
+        missingInformation: (json['missing_information'] as List? ?? [])
+            .map((m) => MissingInfoItem.fromJson(m as Map<String, dynamic>))
+            .toList(),
+        suggestedActions: (json['suggested_actions'] as List? ?? [])
+            .map((s) => SuggestedAction.fromJson(s as Map<String, dynamic>))
+            .toList(),
+        checklist: (json['checklist'] as List? ?? [])
+            .map((c) => ChecklistItemData.fromJson(c as Map<String, dynamic>))
+            .toList(),
+        evidenceIds: List<String>.from(json['evidence_ids'] ?? []),
+        confidenceState: json['confidence_state'] ?? 'High Confidence',
+        requiresHumanApproval: json['requires_human_approval'] ?? true,
+        captureDurationMs: json['capture_duration_ms'],
+        generationSource: json['generation_source'] ?? 'PROTOTYPE_RUNTIME',
+        modelName: json['model_name'] ??
+            'ECHO Grounded Model Adapter (Prototype v1.0)',
+        runtimeMode: json['runtime_mode'] ?? 'PROTOTYPE_RUNTIME',
+        createdAt: json['created_at'] != null
+            ? DateTime.parse(json['created_at'])
+            : DateTime.now(),
+        updatedAt: json['updated_at'] != null
+            ? DateTime.parse(json['updated_at'])
+            : DateTime.now(),
+      );
 
   @override
   bool operator ==(Object other) =>

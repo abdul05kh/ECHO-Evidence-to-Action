@@ -20,11 +20,14 @@ class CanonicalDemoFixture {
       title: 'Lab 2 Projector Not Powering On',
       category: 'equipment',
       priority: 'high',
-      priorityReason: 'Academic session in Lab 2 scheduled to commence in ~20 minutes.',
-      summary: 'Projector ceiling unit in Lab 2 is completely unresponsive. Spare cable available in equipment room.',
+      priorityReason:
+          'Academic session in Lab 2 scheduled to commence in ~20 minutes.',
+      summary:
+          'Projector ceiling unit in Lab 2 is completely unresponsive. Spare cable available in equipment room.',
       observations: [
         ObservedFact(
-          text: 'Projector ceiling unit in Lab 2 shows no active power LED indicator.',
+          text:
+              'Projector ceiling unit in Lab 2 shows no active power LED indicator.',
           evidenceLinks: [
             EvidenceLink(
               evidenceId: photoEvidenceId,
@@ -35,7 +38,8 @@ class CanonicalDemoFixture {
           confidence: 0.98,
         ),
         ObservedFact(
-          text: 'Academic session in Lab 2 scheduled to commence in ~20 minutes.',
+          text:
+              'Academic session in Lab 2 scheduled to commence in ~20 minutes.',
           evidenceLinks: [
             EvidenceLink(
               evidenceId: voiceEvidenceId,
@@ -63,8 +67,10 @@ class CanonicalDemoFixture {
       ],
       inferences: [
         InferenceItem(
-          text: 'Probable power delivery or cable seating issue rather than internal hardware defect.',
-          basis: 'Inferred from lack of power and mention of spare cabling in voice note.',
+          text:
+              'Probable power delivery or cable seating issue rather than internal hardware defect.',
+          basis:
+              'Inferred from lack of power and mention of spare cabling in voice note.',
           confidenceState: 'high',
           supportingEvidence: [
             EvidenceLink(
@@ -84,14 +90,18 @@ class CanonicalDemoFixture {
       missingInformation: const [
         MissingInfoItem(
           prompt: 'Confirm whether the visible wall power switch is ON.',
-          contextReason: 'Wall socket switch state is not confirmed from evidence.',
+          contextReason:
+              'Wall socket switch state is not confirmed from evidence.',
           suggestedCheck: 'Visually check the wall socket power toggle.',
           isResolved: false,
         ),
         MissingInfoItem(
-          prompt: 'Confirm projector model and connector compatibility with the spare cable.',
-          contextReason: 'Cable interface type was not specified in the voice note.',
-          suggestedCheck: 'Inspect projector input panel before retrieving cable.',
+          prompt:
+              'Confirm projector model and connector compatibility with the spare cable.',
+          contextReason:
+              'Cable interface type was not specified in the voice note.',
+          suggestedCheck:
+              'Inspect projector input panel before retrieving cable.',
           isResolved: false,
         ),
       ],
@@ -104,7 +114,8 @@ class CanonicalDemoFixture {
         ),
         SuggestedAction(
           step: 2,
-          action: 'Retrieve the spare cable mentioned in the voice note from the equipment room.',
+          action:
+              'Retrieve the spare cable mentioned in the voice note from the equipment room.',
           confidence: 0.92,
         ),
         SuggestedAction(
@@ -124,11 +135,21 @@ class CanonicalDemoFixture {
         ),
       ],
       checklist: [
-        ChecklistItemData(id: 'chk_${const Uuid().v4().substring(0, 8)}', text: 'Confirm visible wall power switch state'),
-        ChecklistItemData(id: 'chk_${const Uuid().v4().substring(0, 8)}', text: 'Retrieve spare cable from equipment room'),
-        ChecklistItemData(id: 'chk_${const Uuid().v4().substring(0, 8)}', text: 'Connect spare cable to projector'),
-        ChecklistItemData(id: 'chk_${const Uuid().v4().substring(0, 8)}', text: 'Confirm display output and projection'),
-        ChecklistItemData(id: 'chk_${const Uuid().v4().substring(0, 8)}', text: 'Capture closure photo of working projection'),
+        ChecklistItemData(
+            id: 'chk_${const Uuid().v4().substring(0, 8)}',
+            text: 'Confirm visible wall power switch state'),
+        ChecklistItemData(
+            id: 'chk_${const Uuid().v4().substring(0, 8)}',
+            text: 'Retrieve spare cable from equipment room'),
+        ChecklistItemData(
+            id: 'chk_${const Uuid().v4().substring(0, 8)}',
+            text: 'Connect spare cable to projector'),
+        ChecklistItemData(
+            id: 'chk_${const Uuid().v4().substring(0, 8)}',
+            text: 'Confirm display output and projection'),
+        ChecklistItemData(
+            id: 'chk_${const Uuid().v4().substring(0, 8)}',
+            text: 'Capture closure photo of working projection'),
       ],
       evidenceIds: [photoEvidenceId, voiceEvidenceId],
       confidenceState: 'HIGH',

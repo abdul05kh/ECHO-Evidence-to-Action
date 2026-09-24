@@ -4,15 +4,11 @@ import 'package:echo_mobile/features/packet/domain/action_packet.dart';
 void main() {
   group('Domain Value Objects & Equality Tests', () {
     test('ObservedFact equality and hashCode work correctly', () {
-      const fact1 = ObservedFact(
-          text: 'Keyboard missing key',
-          confidence: 0.95);
-      const fact2 = ObservedFact(
-          text: 'Keyboard missing key',
-          confidence: 0.95);
-      const fact3 = ObservedFact(
-          text: 'Display broken',
-          confidence: 0.90);
+      const fact1 =
+          ObservedFact(text: 'Keyboard missing key', confidence: 0.95);
+      const fact2 =
+          ObservedFact(text: 'Keyboard missing key', confidence: 0.95);
+      const fact3 = ObservedFact(text: 'Display broken', confidence: 0.90);
 
       expect(fact1, equals(fact2));
       expect(fact1.hashCode, equals(fact2.hashCode));
@@ -46,8 +42,7 @@ void main() {
           prompt: 'Is power cable connected?',
           contextReason: 'Determines power fix');
       const missing3 = MissingInfoItem(
-          prompt: 'What is asset ID?',
-          contextReason: 'Asset tagging');
+          prompt: 'What is asset ID?', contextReason: 'Asset tagging');
 
       expect(missing1, equals(missing2));
       expect(missing1.hashCode, equals(missing2.hashCode));

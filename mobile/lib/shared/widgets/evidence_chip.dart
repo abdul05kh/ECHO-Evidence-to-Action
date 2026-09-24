@@ -41,7 +41,9 @@ class EvidenceChip extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
         decoration: BoxDecoration(
-          color: isHighlighted ? EchoTheme.accentGoldLight : EchoTheme.secondarySurface,
+          color: isHighlighted
+              ? EchoTheme.accentGoldLight
+              : EchoTheme.secondarySurface,
           borderRadius: BorderRadius.circular(8),
           border: Border.all(
             color: isHighlighted ? EchoTheme.accentGold : EchoTheme.borderColor,
@@ -58,7 +60,9 @@ class EvidenceChip extends StatelessWidget {
               style: TextStyle(
                 fontSize: 11.5,
                 fontWeight: FontWeight.w600,
-                color: isHighlighted ? EchoTheme.accentGoldDark : EchoTheme.textPrimary,
+                color: isHighlighted
+                    ? EchoTheme.accentGoldDark
+                    : EchoTheme.textPrimary,
               ),
             ),
             if (link.timestampSec != null) ...[
@@ -93,7 +97,8 @@ class ConfidenceChip extends StatelessWidget {
     Color fg;
     IconData icon;
 
-    if (state.toLowerCase().contains('verified') || state.toLowerCase().contains('high')) {
+    if (state.toLowerCase().contains('verified') ||
+        state.toLowerCase().contains('high')) {
       bg = EchoTheme.successGreenLight;
       fg = EchoTheme.successGreen;
       icon = Icons.verified_user_rounded;

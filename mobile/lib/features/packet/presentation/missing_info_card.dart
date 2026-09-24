@@ -18,10 +18,14 @@ class MissingInfoCard extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 10),
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: item.isResolved ? EchoTheme.successGreenLight.withValues(alpha: 0.5) : const Color(0xFFFFFBEB),
+        color: item.isResolved
+            ? EchoTheme.successGreenLight.withValues(alpha: 0.5)
+            : const Color(0xFFFFFBEB),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: item.isResolved ? EchoTheme.successGreen.withValues(alpha: 0.4) : EchoTheme.warningAmber.withValues(alpha: 0.5),
+          color: item.isResolved
+              ? EchoTheme.successGreen.withValues(alpha: 0.4)
+              : EchoTheme.warningAmber.withValues(alpha: 0.5),
           width: 1.2,
         ),
       ),
@@ -32,9 +36,13 @@ class MissingInfoCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Icon(
-                item.isResolved ? Icons.check_circle_rounded : Icons.help_outline_rounded,
+                item.isResolved
+                    ? Icons.check_circle_rounded
+                    : Icons.help_outline_rounded,
                 size: 18,
-                color: item.isResolved ? EchoTheme.successGreen : EchoTheme.warningAmber,
+                color: item.isResolved
+                    ? EchoTheme.successGreen
+                    : EchoTheme.warningAmber,
               ),
               const SizedBox(width: 8),
               Expanded(
@@ -67,7 +75,8 @@ class MissingInfoCard extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.only(left: 26),
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(6),
@@ -76,7 +85,8 @@ class MissingInfoCard extends StatelessWidget {
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(Icons.touch_app_outlined, size: 13, color: EchoTheme.actionBlue),
+                    const Icon(Icons.touch_app_outlined,
+                        size: 13, color: EchoTheme.actionBlue),
                     const SizedBox(width: 6),
                     Text(
                       'Suggested: ${item.suggestedCheck}',
