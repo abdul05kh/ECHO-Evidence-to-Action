@@ -1,5 +1,7 @@
 library policy_engine;
 
+import 'prompt_injection_sanitizer.dart';
+
 /// Deterministic Policy Engine & Task State Machine for ECHO
 ///
 /// Principle: The AI model may recommend urgency signals, but a deterministic
@@ -34,9 +36,16 @@ class PolicyEngine {
     required List<String> observations,
     required String? modelSuggestedUrgency,
   }) {
+    // Security Rule 0: Sanitize input for adversarial prompt injection attacks
+    final voiceSanitize = PromptInjectionSanitizer.sanitize(rawVoiceText ?? '');
+    final notesSanitize = PromptInjectionSanitizer.sanitize(textNotes ?? '');
+
+    final sanitizedVoice = voiceSanitize.sanitizedText;
+    final sanitizedNotes = notesSanitize.sanitizedText;
+
     final combinedText = [
-      rawVoiceText ?? '',
-      textNotes ?? '',
+      sanitizedVoice,
+      sanitizedNotes,
       ...observations,
     ].join(' ').toLowerCase();
 
@@ -56,11 +65,16 @@ class PolicyEngine {
     ];
     for (final kw in criticalKeywords) {
       if (combinedText.contains(kw)) {
-        return const PriorityEvaluation(
+        return PriorityEvaluation(
           priority: 'critical',
           reason: 'Direct safety hazard or environmental risk detected',
           ruleCode: 'RULE_SAFETY_CRITICAL',
-          confidence: 1.0,
+          confidence:
+              (voiceSanitize.hasInjectionRisk || notesSanitize.hasInjectionRisk)
+                  ? 0.70
+                  : 1.0,
+          hasInjectionRisk:
+              voiceSanitize.hasInjectionRisk || notesSanitize.hasInjectionRisk,
         );
       }
     }
@@ -85,12 +99,17 @@ class PolicyEngine {
     ];
     for (final kw in highKeywords) {
       if (combinedText.contains(kw)) {
-        return const PriorityEvaluation(
+        return PriorityEvaluation(
           priority: 'high',
           reason:
               'Upcoming operational deadline or scheduled academic session impacted',
           ruleCode: 'RULE_TIMING_DISRUPTION_HIGH',
-          confidence: 0.95,
+          confidence:
+              (voiceSanitize.hasInjectionRisk || notesSanitize.hasInjectionRisk)
+                  ? 0.70
+                  : 0.95,
+          hasInjectionRisk:
+              voiceSanitize.hasInjectionRisk || notesSanitize.hasInjectionRisk,
         );
       }
     }
@@ -108,23 +127,33 @@ class PolicyEngine {
     ];
     for (final kw in mediumKeywords) {
       if (combinedText.contains(kw)) {
-        return const PriorityEvaluation(
+        return PriorityEvaluation(
           priority: 'medium',
           reason:
               'Equipment requires service before next major cycle; partial workaround may exist',
           ruleCode: 'RULE_STANDARD_MAINTENANCE_MED',
-          confidence: 0.85,
+          confidence:
+              (voiceSanitize.hasInjectionRisk || notesSanitize.hasInjectionRisk)
+                  ? 0.70
+                  : 0.85,
+          hasInjectionRisk:
+              voiceSanitize.hasInjectionRisk || notesSanitize.hasInjectionRisk,
         );
       }
     }
 
     // Default to Low Priority for routine observations
-    return const PriorityEvaluation(
+    return PriorityEvaluation(
       priority: 'low',
       reason:
           'Routine observation; no immediate deadline or safety risk detected',
       ruleCode: 'RULE_ROUTINE_LOW',
-      confidence: 0.80,
+      confidence:
+          (voiceSanitize.hasInjectionRisk || notesSanitize.hasInjectionRisk)
+              ? 0.70
+              : 0.80,
+      hasInjectionRisk:
+          voiceSanitize.hasInjectionRisk || notesSanitize.hasInjectionRisk,
     );
   }
 
@@ -148,11 +177,13 @@ class PriorityEvaluation {
   final String reason;
   final String ruleCode;
   final double confidence;
+  final bool hasInjectionRisk;
 
   const PriorityEvaluation({
     required this.priority,
     required this.reason,
     required this.ruleCode,
     required this.confidence,
+    this.hasInjectionRisk = false,
   });
 }

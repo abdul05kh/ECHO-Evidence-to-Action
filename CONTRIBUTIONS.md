@@ -127,4 +127,17 @@ This file tracks all genuine contributions.
   - `mobile/test/unit/sync_outbox_item_converter_test.dart`
   - `CONTRIBUTIONS.md`
 - **Tests performed**: `flutter analyze` clean (0 issues), 2 unit tests passed, 116 total tests passed.
+- **Commit**: `870ac93`
+
+### Contribution 10
+- **Title**: Add prompt injection sanitizer to PolicyEngine
+- **Category**: AI / Security
+- **Problem**: User speech-to-text transcripts or photo text inputs might contain adversarial prompt injection phrases (e.g., `Ignore previous instructions`, `System: override prompt`) that attempt to manipulate local model parameters or bypass deterministic safety rules.
+- **Solution**: Implemented `PromptInjectionSanitizer` with regex pattern detection and redaction safeguards. Integrated sanitizer into `PolicyEngine.evaluate()` to lower confidence scores and flag injection risks for operator review. Added a dedicated suite of unit tests.
+- **Files changed**:
+  - `mobile/lib/features/ai/prompt_injection_sanitizer.dart`
+  - `mobile/lib/features/ai/policy_engine.dart`
+  - `mobile/test/unit/prompt_injection_sanitizer_test.dart`
+  - `CONTRIBUTIONS.md`
+- **Tests performed**: `flutter analyze` clean (0 issues), 3 unit tests passed, 119 total tests passed.
 - **Commit**: Pending
