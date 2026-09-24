@@ -188,4 +188,16 @@ This file tracks all genuine contributions.
   - `mobile/test/unit/json_schema_exporter_test.dart`
   - `CONTRIBUTIONS.md`
 - **Tests performed**: `flutter analyze` clean (0 issues), 1 unit test passed, 125 total tests passed.
+- **Commit**: `7d73431`
+
+### Contribution 15
+- **Title**: Implement ChecklistStateNotifier for TaskDetailScreen
+- **Category**: Features / Tasks
+- **Problem**: `TaskDetailScreen` toggled checklist items inline without a dedicated state notifier managing checklist completion counts, progress ratios, percentage text strings, and item additions/removals.
+- **Solution**: Implemented `ChecklistStateNotifier` managing checklist items state, completion ratios, percentage strings (e.g. `75%`), and item toggles/additions/removals. Added unit test suite `checklist_state_notifier_test.dart`.
+- **Files changed**:
+  - `mobile/lib/features/tasks/domain/checklist_state_notifier.dart`
+  - `mobile/test/unit/checklist_state_notifier_test.dart`
+  - `CONTRIBUTIONS.md`
+- **Tests performed**: `flutter analyze` clean (0 issues), 3 unit tests passed, 128 total tests passed.
 - **Commit**: Pending
