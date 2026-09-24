@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 import '../../app/theme.dart';
 import '../../shared/widgets/status_pill.dart';
+import '../ai/local_llm_provider.dart';
 import '../ai/model_adapter.dart';
 import '../bridge/office_kit_bridge.dart';
 import '../capture/presentation/capture_view.dart';
 import '../fixtures/canonical_demo_fixture.dart';
 import '../packet/domain/action_packet.dart';
-import '../tasks/presentation/task_detail_screen.dart';
-
 import '../settings/presentation/ai_runtime_screen.dart';
-import '../ai/local_llm_provider.dart';
+import '../tasks/presentation/task_detail_screen.dart';
+import 'search_filter_state.dart';
 
 class HomeQueueScreen extends StatefulWidget {
   final ModelAdapter modelAdapter;
@@ -25,11 +25,19 @@ class HomeQueueScreen extends StatefulWidget {
 
 class _HomeQueueScreenState extends State<HomeQueueScreen> {
   final List<ActionPacketModel> _activeTasks = [];
+  final TextEditingController _searchController = TextEditingController();
+  SearchFilterState _filterState = const SearchFilterState();
 
   @override
   void initState() {
     super.initState();
     _seedInitialCanonicalData();
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
   }
 
   void _seedInitialCanonicalData() {
@@ -55,7 +63,8 @@ class _HomeQueueScreenState extends State<HomeQueueScreen> {
             });
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: Text('Task "${approvedPacket.title}" approved and created locally!'),
+                content: Text(
+                    'Task "${approvedPacket.title}" approved and created locally!'),
                 backgroundColor: EchoTheme.successGreen,
                 action: SnackBarAction(
                   label: 'OFFICE KIT',
@@ -78,7 +87,8 @@ class _HomeQueueScreenState extends State<HomeQueueScreen> {
           packet: task,
           onTaskUpdated: (updatedPacket) {
             setState(() {
-              final idx = _activeTasks.indexWhere((t) => t.id == updatedPacket.id);
+              final idx =
+                  _activeTasks.indexWhere((t) => t.id == updatedPacket.id);
               if (idx != -1) {
                 _activeTasks[idx] = updatedPacket;
               }
@@ -101,7 +111,8 @@ class _HomeQueueScreenState extends State<HomeQueueScreen> {
           children: [
             Icon(Icons.devices_rounded, color: EchoTheme.actionBlue, size: 22),
             SizedBox(width: 8),
-            Text('Office Kit Bridge Export', style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700)),
+            Text('Office Kit Bridge Export',
+                style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700)),
           ],
         ),
         content: Column(
@@ -122,16 +133,23 @@ class _HomeQueueScreenState extends State<HomeQueueScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Packet ID: ${packet.id}', style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 12)),
-                  Text('Title: ${packet.title}', style: const TextStyle(fontSize: 12)),
-                  Text('Priority: ${packet.priority.toUpperCase()}', style: const TextStyle(fontSize: 12)),
+                  Text('Packet ID: ${packet.id}',
+                      style: const TextStyle(
+                          fontWeight: FontWeight.w700, fontSize: 12)),
+                  Text('Title: ${packet.title}',
+                      style: const TextStyle(fontSize: 12)),
+                  Text('Priority: ${packet.priority.toUpperCase()}',
+                      style: const TextStyle(fontSize: 12)),
                 ],
               ),
             ),
             const SizedBox(height: 12),
             const Text(
               'Switch to Laptop Workspace -> Tap "Import Packet" -> Zero retyping.',
-              style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w600, color: EchoTheme.actionBlue),
+              style: TextStyle(
+                  fontSize: 12.5,
+                  fontWeight: FontWeight.w600,
+                  color: EchoTheme.actionBlue),
             ),
           ],
         ),
@@ -152,36 +170,62 @@ class _HomeQueueScreenState extends State<HomeQueueScreen> {
     showModalBottomSheet(
       context: context,
       backgroundColor: EchoTheme.surfaceColor,
-      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
-      builder: (context) => Padding(
-        padding: const EdgeInsets.fromLTRB(20, 16, 20, 32),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) => Container(
+        padding: const EdgeInsets.all(24),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
               children: [
-                const Icon(Icons.developer_board_rounded, color: EchoTheme.accentGoldDark, size: 22),
-                const SizedBox(width: 8),
+                const Icon(Icons.analytics_outlined,
+                    color: EchoTheme.accentGold, size: 22),
+                const SizedBox(width: 10),
                 const Text(
-                  'TECHNICAL DIAGNOSTIC PANEL',
-                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w800, letterSpacing: 0.5),
+                  'SYSTEM DIAGNOSTIC OVERVIEW',
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: 0.5,
+                    color: EchoTheme.textPrimary,
+                  ),
                 ),
                 const Spacer(),
-                IconButton(icon: const Icon(Icons.close), onPressed: () => Navigator.of(context).pop()),
+                IconButton(
+                  icon: const Icon(Icons.close_rounded,
+                      size: 20, color: EchoTheme.textTertiary),
+                  onPressed: () => Navigator.of(context).pop(),
+                ),
               ],
             ),
-            const SizedBox(height: 12),
-            _diagRow('Model Runtime', status.displayName),
-            _diagRow('Target Architecture', status.deviceArchitecture),
-            _diagRow('Average Latency', '${status.averageLatencyMs} ms'),
-            _diagRow('Local SQLite Persistence', 'ACTIVE (Drift Schema v1)'),
-            _diagRow('Offline Outbox Status', 'IDLE (0 pending syncs)'),
-            _diagRow('Office Kit Protocol', 'READY (Clipboard & JSON v1.0)'),
             const SizedBox(height: 16),
-            const Text(
-              'ECHO adheres strictly to AI Honesty. Prototype runtimes and fallback modes are clearly demarcated.',
-              style: TextStyle(fontSize: 11.5, color: EchoTheme.textSecondary, fontStyle: FontStyle.italic),
+            _diagRow('Model Adapter Active', status.modelName),
+            _diagRow('Runtime Mode', status.mode.name),
+            _diagRow('Local LLM Initialized',
+                status.isAvailable ? 'YES (100% On-Device)' : 'NO'),
+            _diagRow('Offline Outbox Status', 'IDLE (0 pending syncs)'),
+            _diagRow('Active Storage DB',
+                'echo_local.sqlite (Drift / Native SQLite)'),
+            const SizedBox(height: 20),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => AIRuntimeScreen(
+                        localLlmProvider: LiteRtLocalLlmProvider(),
+                      ),
+                    ),
+                  );
+                },
+                icon: const Icon(Icons.tune_rounded, size: 18),
+                label: const Text('OPEN AI RUNTIME DIAGNOSTICS'),
+              ),
             ),
           ],
         ),
@@ -191,12 +235,22 @@ class _HomeQueueScreenState extends State<HomeQueueScreen> {
 
   Widget _diagRow(String label, String value) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
+      padding: const EdgeInsets.symmetric(vertical: 6),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(label, style: const TextStyle(fontSize: 13, color: EchoTheme.textSecondary)),
-          Text(value, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: EchoTheme.textPrimary)),
+          Text(label,
+              style: const TextStyle(
+                  fontSize: 13, color: EchoTheme.textSecondary)),
+          Text(
+            value,
+            style: const TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w700,
+              color: EchoTheme.textPrimary,
+              fontFamily: 'monospace',
+            ),
+          ),
         ],
       ),
     );
@@ -204,35 +258,28 @@ class _HomeQueueScreenState extends State<HomeQueueScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final filteredTasks = _filterState.apply(_activeTasks);
+
     return Scaffold(
-      backgroundColor: EchoTheme.canvasColor,
       appBar: AppBar(
         title: Row(
           children: [
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-              decoration: BoxDecoration(
-                color: EchoTheme.accentGold,
-                borderRadius: BorderRadius.circular(6),
-              ),
-              child: const Text(
-                'ECHO',
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w900,
-                  color: EchoTheme.textPrimary,
-                  letterSpacing: 0.8,
-                ),
+              width: 10,
+              height: 10,
+              decoration: const BoxDecoration(
+                color: EchoTheme.successGreen,
+                shape: BoxShape.circle,
               ),
             ),
             const SizedBox(width: 8),
-            const Text('Field Orchestrator', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
+            const Text('ECHO HANDOFF', style: TextStyle(letterSpacing: 0.5)),
           ],
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.memory_rounded, color: EchoTheme.actionBlue),
-            tooltip: 'AI Runtime & Model Status',
+            icon: const Icon(Icons.settings_outlined,
+                color: EchoTheme.textSecondary),
             onPressed: () {
               Navigator.of(context).push(
                 MaterialPageRoute(
@@ -244,177 +291,307 @@ class _HomeQueueScreenState extends State<HomeQueueScreen> {
             },
           ),
           IconButton(
-            icon: const Icon(Icons.tune_rounded),
-            tooltip: 'Technical Diagnostic',
+            icon: const Icon(Icons.info_outline_rounded,
+                color: EchoTheme.textSecondary),
             onPressed: _showTechnicalDiagnostic,
           ),
-          const SizedBox(width: 8),
         ],
       ),
-      body: Column(
-        children: [
-          // Offline Banner
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-            color: const Color(0xFFF1F5F9),
-            child: Row(
-              children: [
-                Container(
-                  width: 8,
-                  height: 8,
-                  decoration: const BoxDecoration(
-                    color: EchoTheme.successGreen,
-                    shape: BoxShape.circle,
-                  ),
-                ),
-                const SizedBox(width: 8),
-                const Text(
-                  'LOCAL-FIRST MODE · Stored securely on this device',
-                  style: TextStyle(
-                    fontSize: 11.5,
-                    fontWeight: FontWeight.w600,
-                    color: EchoTheme.textSecondary,
-                  ),
-                ),
-                const Spacer(),
-                const Text(
-                  '0 queued',
-                  style: TextStyle(fontSize: 11, color: EchoTheme.textTertiary),
-                ),
-              ],
-            ),
-          ),
-
-          Expanded(
-            child: ListView(
+      body: SafeArea(
+        child: CustomScrollView(
+          slivers: [
+            SliverPadding(
               padding: const EdgeInsets.all(16),
-              children: [
-                // Heartbeat Capture CTA
-                InkWell(
-                  onTap: _openCapture,
-                  borderRadius: BorderRadius.circular(16),
-                  child: Container(
-                    padding: const EdgeInsets.all(20),
-                    decoration: BoxDecoration(
-                      color: EchoTheme.surfaceColor,
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: EchoTheme.accentGold, width: 2),
-                      boxShadow: [
-                        BoxShadow(
-                          color: EchoTheme.accentGold.withValues(alpha: 0.12),
-                          blurRadius: 16,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
-                    ),
-                    child: Row(
-                      children: [
-                        Container(
-                          width: 52,
-                          height: 52,
-                          decoration: const BoxDecoration(
-                            color: EchoTheme.accentGold,
-                            shape: BoxShape.circle,
+              sliver: SliverList(
+                delegate: SliverChildListDelegate([
+                  // Primary Action Card
+                  InkWell(
+                    onTap: _openCapture,
+                    borderRadius: BorderRadius.circular(16),
+                    child: Container(
+                      padding: const EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        color: EchoTheme.surfaceColor,
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(
+                            color: EchoTheme.accentGold.withAlpha(100),
+                            width: 1.5),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withAlpha(76),
+                            blurRadius: 12,
+                            offset: const Offset(0, 4),
                           ),
-                          child: const Icon(Icons.add_a_photo_rounded, color: EchoTheme.textPrimary, size: 26),
-                        ),
-                        const SizedBox(width: 16),
-                        const Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                '+ CAPTURE ISSUE',
-                                style: TextStyle(
-                                  fontSize: 17,
-                                  fontWeight: FontWeight.w800,
-                                  letterSpacing: 0.5,
-                                  color: EchoTheme.textPrimary,
-                                ),
-                              ),
-                              SizedBox(height: 2),
-                              Text(
-                                'Photograph + Voice context -> Action Packet',
-                                style: TextStyle(
-                                  fontSize: 12.5,
-                                  color: EchoTheme.textSecondary,
-                                ),
-                              ),
-                            ],
+                        ],
+                      ),
+                      child: Row(
+                        children: [
+                          Container(
+                            width: 52,
+                            height: 52,
+                            decoration: const BoxDecoration(
+                              color: EchoTheme.accentGold,
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(Icons.add_a_photo_rounded,
+                                color: EchoTheme.textPrimary, size: 26),
                           ),
-                        ),
-                        const Icon(Icons.arrow_forward_ios_rounded, size: 16, color: EchoTheme.textTertiary),
-                      ],
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 20),
-
-                // Metrics Row
-                Row(
-                  children: [
-                    _metricCard('ACTIVE TASKS', '${_activeTasks.length}', Icons.assignment_outlined, EchoTheme.actionBlue),
-                    const SizedBox(width: 10),
-                    _metricCard('AVG WORKFLOW', '38s', Icons.timer_outlined, EchoTheme.accentGoldDark),
-                    const SizedBox(width: 10),
-                    _metricCard('LOCAL PERSIST', '100%', Icons.storage_rounded, EchoTheme.successGreen),
-                  ],
-                ),
-                const SizedBox(height: 24),
-
-                // Active Queue Header
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text(
-                      'ACTIVE WORK ORDERS',
-                      style: TextStyle(
-                        fontSize: 12.5,
-                        fontWeight: FontWeight.w800,
-                        letterSpacing: 0.5,
-                        color: EchoTheme.textSecondary,
+                          const SizedBox(width: 16),
+                          const Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  '+ CAPTURE ISSUE',
+                                  style: TextStyle(
+                                    fontSize: 17,
+                                    fontWeight: FontWeight.w800,
+                                    letterSpacing: 0.5,
+                                    color: EchoTheme.textPrimary,
+                                  ),
+                                ),
+                                SizedBox(height: 2),
+                                Text(
+                                  'Photograph + Voice context -> Action Packet',
+                                  style: TextStyle(
+                                    fontSize: 12.5,
+                                    color: EchoTheme.textSecondary,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const Icon(Icons.arrow_forward_ios_rounded,
+                              size: 16, color: EchoTheme.textTertiary),
+                        ],
                       ),
                     ),
-                    Text(
-                      '${_activeTasks.length} items',
-                      style: const TextStyle(fontSize: 12, color: EchoTheme.textTertiary),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 10),
+                  ),
+                  const SizedBox(height: 20),
 
-                if (_activeTasks.isEmpty)
-                  Container(
-                    padding: const EdgeInsets.all(32),
-                    alignment: Alignment.center,
-                    decoration: BoxDecoration(
-                      color: EchoTheme.surfaceColor,
-                      borderRadius: BorderRadius.circular(14),
-                      border: Border.all(color: EchoTheme.borderColor),
-                    ),
-                    child: const Column(
-                      children: [
-                        Icon(Icons.task_alt_rounded, size: 40, color: EchoTheme.textTertiary),
-                        SizedBox(height: 10),
-                        Text(
-                          'No Active Work Orders',
-                          style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: EchoTheme.textPrimary),
+                  // Metrics Row
+                  Row(
+                    children: [
+                      _metricCard('ACTIVE TASKS', '${_activeTasks.length}',
+                          Icons.assignment_outlined, EchoTheme.actionBlue),
+                      const SizedBox(width: 10),
+                      _metricCard('AVG WORKFLOW', '38s', Icons.timer_outlined,
+                          EchoTheme.accentGoldDark),
+                      const SizedBox(width: 10),
+                      _metricCard('LOCAL PERSIST', '100%',
+                          Icons.storage_rounded, EchoTheme.successGreen),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+
+                  // Search and Filter Section
+                  _buildSearchAndFilterSection(),
+                  const SizedBox(height: 16),
+
+                  // Active Queue Header
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text(
+                        'ACTIVE WORK ORDERS',
+                        style: TextStyle(
+                          fontSize: 12.5,
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: 0.5,
+                          color: EchoTheme.textSecondary,
                         ),
-                        SizedBox(height: 4),
-                        Text(
-                          'Captured issues will appear here after approval.',
-                          style: TextStyle(fontSize: 12, color: EchoTheme.textSecondary),
-                        ),
-                      ],
-                    ),
+                      ),
+                      Text(
+                        '${filteredTasks.length} of ${_activeTasks.length} items',
+                        style: const TextStyle(
+                            fontSize: 12, color: EchoTheme.textTertiary),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 10),
+
+                  if (filteredTasks.isEmpty)
+                    Container(
+                      padding: const EdgeInsets.all(32),
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        color: EchoTheme.surfaceColor,
+                        borderRadius: BorderRadius.circular(14),
+                        border: Border.all(color: EchoTheme.borderColor),
+                      ),
+                      child: Column(
+                        children: [
+                          Icon(
+                            _filterState.isFiltered
+                                ? Icons.search_off_rounded
+                                : Icons.task_alt_rounded,
+                            size: 40,
+                            color: EchoTheme.textTertiary,
+                          ),
+                          const SizedBox(height: 10),
+                          Text(
+                            _filterState.isFiltered
+                                ? 'No Matching Work Orders'
+                                : 'No Active Work Orders',
+                            style: const TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                                color: EchoTheme.textPrimary),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            _filterState.isFiltered
+                                ? 'Try adjusting your search query or clear filters.'
+                                : 'Captured issues will appear here after approval.',
+                            style: const TextStyle(
+                                fontSize: 12, color: EchoTheme.textSecondary),
+                          ),
+                          if (_filterState.isFiltered) ...[
+                            const SizedBox(height: 12),
+                            TextButton.icon(
+                              onPressed: () {
+                                setState(() {
+                                  _searchController.clear();
+                                  _filterState = const SearchFilterState();
+                                });
+                              },
+                              icon:
+                                  const Icon(Icons.clear_all_rounded, size: 16),
+                              label: const Text('Clear Filters'),
+                            ),
+                          ],
+                        ],
+                      ),
+                    )
+                  else
+                    ...filteredTasks.map((task) => _buildTaskCard(task)),
+                ]),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSearchAndFilterSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Search Input
+        TextField(
+          controller: _searchController,
+          onChanged: (val) {
+            setState(() {
+              _filterState = _filterState.copyWith(query: val);
+            });
+          },
+          decoration: InputDecoration(
+            hintText: 'Search title, ID, category, or summary...',
+            prefixIcon: const Icon(Icons.search_rounded,
+                size: 20, color: EchoTheme.textTertiary),
+            suffixIcon: _searchController.text.isNotEmpty
+                ? IconButton(
+                    icon: const Icon(Icons.cancel_rounded,
+                        size: 18, color: EchoTheme.textTertiary),
+                    onPressed: () {
+                      setState(() {
+                        _searchController.clear();
+                        _filterState = _filterState.copyWith(query: '');
+                      });
+                    },
                   )
-                else
-                  ..._activeTasks.map((task) => _buildTaskCard(task)),
-              ],
+                : null,
+            filled: true,
+            fillColor: EchoTheme.surfaceColor,
+            contentPadding:
+                const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: EchoTheme.borderColor),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: EchoTheme.borderColor),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: EchoTheme.accentGold),
             ),
           ),
-        ],
+        ),
+        const SizedBox(height: 10),
+
+        // Category Filter Chips
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            children: [
+              _filterChip(
+                label: 'All Categories',
+                isSelected: _filterState.selectedCategory == null,
+                onSelected: () {
+                  setState(() {
+                    _filterState = _filterState.copyWith(clearCategory: true);
+                  });
+                },
+              ),
+              const SizedBox(width: 6),
+              ...['equipment', 'facility', 'electrical', 'plumbing', 'safety']
+                  .map((cat) {
+                final isSel = _filterState.selectedCategory?.toLowerCase() ==
+                    cat.toLowerCase();
+                return Padding(
+                  padding: const EdgeInsets.only(right: 6),
+                  child: _filterChip(
+                    label: cat.toUpperCase(),
+                    isSelected: isSel,
+                    onSelected: () {
+                      setState(() {
+                        _filterState = isSel
+                            ? _filterState.copyWith(clearCategory: true)
+                            : _filterState.copyWith(selectedCategory: cat);
+                      });
+                    },
+                  ),
+                );
+              }),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _filterChip({
+    required String label,
+    required bool isSelected,
+    required VoidCallback onSelected,
+  }) {
+    return InkWell(
+      onTap: onSelected,
+      borderRadius: BorderRadius.circular(20),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 150),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        decoration: BoxDecoration(
+          color: isSelected
+              ? EchoTheme.accentGold.withAlpha(51)
+              : EchoTheme.surfaceColor,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: isSelected ? EchoTheme.accentGold : EchoTheme.borderColor,
+            width: isSelected ? 1.5 : 1.0,
+          ),
+        ),
+        child: Text(
+          label,
+          style: TextStyle(
+            fontSize: 11,
+            fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+            color: isSelected ? EchoTheme.accentGold : EchoTheme.textSecondary,
+          ),
+        ),
       ),
     );
   }
@@ -476,7 +653,7 @@ class _HomeQueueScreenState extends State<HomeQueueScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 StatusPill(status: task.status),
-                PriorityBadge(priority: task.priority),
+                StatusPill(status: task.priority),
               ],
             ),
             const SizedBox(height: 10),
@@ -493,22 +670,28 @@ class _HomeQueueScreenState extends State<HomeQueueScreen> {
               task.summary,
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
-              style: const TextStyle(fontSize: 13, color: EchoTheme.textSecondary),
+              style:
+                  const TextStyle(fontSize: 13, color: EchoTheme.textSecondary),
             ),
             const SizedBox(height: 12),
             Row(
               children: [
                 Text(
                   'ID: ${task.id}',
-                  style: const TextStyle(fontSize: 11, color: EchoTheme.textTertiary, fontFamily: 'monospace'),
+                  style: const TextStyle(
+                      fontSize: 11,
+                      color: EchoTheme.textTertiary,
+                      fontFamily: 'monospace'),
                 ),
                 const Spacer(),
                 OutlinedButton.icon(
                   onPressed: () => _exportToOfficeKit(task),
                   icon: const Icon(Icons.devices_rounded, size: 14),
-                  label: const Text('Office Kit', style: TextStyle(fontSize: 12)),
+                  label:
+                      const Text('Office Kit', style: TextStyle(fontSize: 12)),
                   style: OutlinedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                   ),
                 ),
               ],

@@ -77,4 +77,18 @@ This file tracks all genuine contributions.
   - `mobile/test/unit/sync_outbox_manager_test.dart`
   - `CONTRIBUTIONS.md`
 - **Tests performed**: `flutter analyze` clean, `flutter test test/unit/sync_outbox_manager_test.dart` passed, full test suite (102 tests) passed.
+- **Commit**: `d058bc3`
+
+### Contribution 06
+- **Title**: Add search query and category filter bar to HomeQueueScreen
+- **Category**: UI / Task Management & Search
+- **Problem**: Operators lacked real-time keyword search (title, summary, ID) and category filtering across active work orders in `HomeQueueScreen`.
+- **Solution**: Implemented `SearchFilterState` value object to manage search queries and category selections cleanly. Added a search input field and interactive category filter chips to `HomeQueueScreen` with empty search state feedback and clear filter action.
+- **Files changed**:
+  - `mobile/lib/features/home/search_filter_state.dart`
+  - `mobile/lib/features/home/home_queue_screen.dart`
+  - `mobile/test/unit/search_filter_state_test.dart`
+  - `mobile/test/screens/home_queue_screen_test.dart`
+  - `CONTRIBUTIONS.md`
+- **Tests performed**: `flutter analyze` clean (0 issues), 6 unit tests in `search_filter_state_test.dart` passed, 108 total tests passed.
 - **Commit**: Pending

@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:echo_mobile/features/ai/model_adapter.dart';
 import 'package:echo_mobile/features/home/home_queue_screen.dart';
@@ -16,7 +16,7 @@ void main() {
         ),
       );
 
-      expect(find.text('Field Orchestrator'), findsOneWidget);
+      expect(find.text('ECHO HANDOFF'), findsOneWidget);
       expect(find.text('+ CAPTURE ISSUE'), findsOneWidget);
       expect(find.text('ACTIVE WORK ORDERS'), findsOneWidget);
     });
