@@ -164,4 +164,16 @@ This file tracks all genuine contributions.
   - `mobile/test/unit/markdown_exporter_test.dart`
   - `CONTRIBUTIONS.md`
 - **Tests performed**: `flutter analyze` clean (0 issues), 1 unit test passed, 122 total tests passed.
+- **Commit**: `bb8a56c`
+
+### Contribution 13
+- **Title**: Add CSVExporter to OfficeKitBridge
+- **Category**: Features / Bridge
+- **Problem**: Operators lacked CSV export functionality to export Action Packets and task lists into tabular spreadsheets (Excel / Google Sheets).
+- **Solution**: Implemented `CSVExporter` supporting single packet CSV conversion and batch list CSV export with proper quote escaping. Added unit test suite `csv_exporter_test.dart`.
+- **Files changed**:
+  - `mobile/lib/features/bridge/csv_exporter.dart`
+  - `mobile/test/unit/csv_exporter_test.dart`
+  - `CONTRIBUTIONS.md`
+- **Tests performed**: `flutter analyze` clean (0 issues), 2 unit tests passed, 124 total tests passed.
 - **Commit**: Pending
