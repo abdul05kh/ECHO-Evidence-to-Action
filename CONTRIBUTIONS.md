@@ -213,3 +213,15 @@ This file tracks all genuine contributions.
   - `CONTRIBUTIONS.md`
 - **Tests performed**: `flutter analyze` clean (0 issues), 3 unit tests passed, 131 total tests passed.
 - **Commit**: Pending
+
+### Contribution 17
+- **Title**: Add NetworkConnectivityMonitor utility
+- **Category**: Features / Network & Sync
+- **Problem**: The app lacked a centralized network connectivity monitor to determine online/wifi/offline state and sync readiness.
+- **Solution**: Implemented `NetworkConnectivityMonitor` with `NetworkStatus` enum, `isOnline`, `isWifi`, and `canSync` properties, status update methods, and Riverpod provider support. Added unit test suite `network_connectivity_monitor_test.dart`.
+- **Files changed**:
+  - `mobile/lib/core/network/network_connectivity_monitor.dart`
+  - `mobile/test/unit/network_connectivity_monitor_test.dart`
+  - `CONTRIBUTIONS.md`
+- **Tests performed**: `flutter analyze` clean (0 issues), 3 unit tests passed, 134 total tests passed.
+- **Commit**: Pending
