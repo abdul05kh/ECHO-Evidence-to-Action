@@ -286,3 +286,15 @@ This file tracks all genuine contributions.
   - `CONTRIBUTIONS.md`
 - **Tests performed**: `flutter analyze` clean (0 issues), 3 widget tests passed, 145 total tests passed.
 - **Commit**: Pending
+
+### Contribution 23
+- **Title**: Add EvidenceStorageSizeCalculator utility
+- **Category**: Features / Storage Diagnostics
+- **Problem**: Storage diagnostics lacked a standardized utility for calculating cumulative attachment sizes and formatting human-readable byte values (B, KB, MB, GB).
+- **Solution**: Implemented `EvidenceStorageSizeCalculator` in `mobile/lib/core/storage/evidence_storage_size_calculator.dart` with byte calculation and string formatting helpers. Added unit test suite `evidence_storage_size_calculator_test.dart`.
+- **Files changed**:
+  - `mobile/lib/core/storage/evidence_storage_size_calculator.dart`
+  - `mobile/test/unit/evidence_storage_size_calculator_test.dart`
+  - `CONTRIBUTIONS.md`
+- **Tests performed**: `flutter analyze` clean (0 issues), 2 unit tests passed, 147 total tests passed.
+- **Commit**: Pending
