@@ -298,3 +298,15 @@ This file tracks all genuine contributions.
   - `CONTRIBUTIONS.md`
 - **Tests performed**: `flutter analyze` clean (0 issues), 2 unit tests passed, 147 total tests passed.
 - **Commit**: Pending
+
+### Contribution 24
+- **Title**: Add TaskSearchIndex helper
+- **Category**: Features / Performance & Search
+- **Problem**: Full-text searching across large collections of action packets required scanning string fields on every keystroke without token caching.
+- **Solution**: Implemented `TaskSearchIndex` in `mobile/lib/features/home/task_search_index.dart` providing inverted token indexing and matching score calculations. Added unit test suite `task_search_index_test.dart`.
+- **Files changed**:
+  - `mobile/lib/features/home/task_search_index.dart`
+  - `mobile/test/unit/task_search_index_test.dart`
+  - `CONTRIBUTIONS.md`
+- **Tests performed**: `flutter analyze` clean (0 issues), 3 unit tests passed, 150 total tests passed.
+- **Commit**: Pending
