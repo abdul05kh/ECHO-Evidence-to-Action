@@ -334,3 +334,15 @@ This file tracks all genuine contributions.
   - `CONTRIBUTIONS.md`
 - **Tests performed**: `flutter analyze` clean (0 issues), 2 widget tests passed, 155 total tests passed.
 - **Commit**: Pending
+
+### Contribution 27
+- **Title**: Add SyncOutboxStatusCard UI widget
+- **Category**: Features / UI Components
+- **Problem**: Outbox status stats (total, pending, syncing, synced, failed) were scattered across diagnostic modals without a dedicated summary card widget.
+- **Solution**: Implemented `SyncOutboxStatusCard` in `mobile/lib/shared/widgets/sync_outbox_status_card.dart` displaying real-time queue counts and a manual "SYNC PENDING NOW" action button. Added widget test suite `sync_outbox_status_card_test.dart`.
+- **Files changed**:
+  - `mobile/lib/shared/widgets/sync_outbox_status_card.dart`
+  - `mobile/test/unit/sync_outbox_status_card_test.dart`
+  - `CONTRIBUTIONS.md`
+- **Tests performed**: `flutter analyze` clean (0 issues), 2 widget tests passed, 157 total tests passed.
+- **Commit**: Pending
