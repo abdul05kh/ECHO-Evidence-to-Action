@@ -418,3 +418,15 @@ This file tracks all genuine contributions.
   - `CONTRIBUTIONS.md`
 - **Tests performed**: `flutter analyze` clean (0 issues), 2 unit tests passed, 172 total tests passed.
 - **Commit**: Pending
+
+### Contribution 34
+- **Title**: Add TaskAssignmentStateNotifier for task claim workflows
+- **Category**: Features / State & Workflow
+- **Problem**: Work order detail screens toggled claim state inline without a structured state notifier tracking assignee metadata, claim timestamp, and lifecycle status transitions (`unassigned`, `claimed`, `inProgress`, `handoffReady`).
+- **Solution**: Implemented `TaskAssignmentStateNotifier` and `TaskAssignmentState` in `mobile/lib/features/tasks/domain/task_assignment_state_notifier.dart`. Added unit test suite `task_assignment_state_notifier_test.dart`.
+- **Files changed**:
+  - `mobile/lib/features/tasks/domain/task_assignment_state_notifier.dart`
+  - `mobile/test/unit/task_assignment_state_notifier_test.dart`
+  - `CONTRIBUTIONS.md`
+- **Tests performed**: `flutter analyze` clean (0 issues), 4 unit tests passed, 176 total tests passed.
+- **Commit**: Pending
