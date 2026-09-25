@@ -358,3 +358,15 @@ This file tracks all genuine contributions.
   - `CONTRIBUTIONS.md`
 - **Tests performed**: `flutter analyze` clean (0 issues), 3 unit tests passed, 160 total tests passed.
 - **Commit**: Pending
+
+### Contribution 29
+- **Title**: Add TaskPriorityColorMapper utility
+- **Category**: Features / Styling
+- **Problem**: Priority colors and transparent background/border alpha calculations were duplicated across UI components and badge widgets.
+- **Solution**: Implemented `TaskPriorityColorMapper` in `mobile/lib/app/task_priority_color_mapper.dart` providing centralized priority theme color mapping and alpha helper methods. Added unit test suite `task_priority_color_mapper_test.dart`.
+- **Files changed**:
+  - `mobile/lib/app/task_priority_color_mapper.dart`
+  - `mobile/test/unit/task_priority_color_mapper_test.dart`
+  - `CONTRIBUTIONS.md`
+- **Tests performed**: `flutter analyze` clean (0 issues), 4 unit tests passed, 164 total tests passed.
+- **Commit**: Pending
