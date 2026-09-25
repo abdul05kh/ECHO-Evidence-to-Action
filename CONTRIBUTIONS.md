@@ -310,3 +310,15 @@ This file tracks all genuine contributions.
   - `CONTRIBUTIONS.md`
 - **Tests performed**: `flutter analyze` clean (0 issues), 3 unit tests passed, 150 total tests passed.
 - **Commit**: Pending
+
+### Contribution 25
+- **Title**: Add TaskSortingNotifier for HomeQueueScreen
+- **Category**: Features / State & Sorting
+- **Problem**: Action packets in Home Queue were presented strictly in creation sequence without options to sort by priority severity, date, or title.
+- **Solution**: Implemented `TaskSortingNotifier` supporting `TaskSortOption` enum modes (`dateNewest`, `dateOldest`, `priorityHighest`, `titleAZ`) with comparator functions and Riverpod provider support. Added unit test suite `task_sorting_notifier_test.dart`.
+- **Files changed**:
+  - `mobile/lib/features/home/task_sorting_notifier.dart`
+  - `mobile/test/unit/task_sorting_notifier_test.dart`
+  - `CONTRIBUTIONS.md`
+- **Tests performed**: `flutter analyze` clean (0 issues), 3 unit tests passed, 153 total tests passed.
+- **Commit**: Pending
