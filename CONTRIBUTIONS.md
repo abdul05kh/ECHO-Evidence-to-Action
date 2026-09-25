@@ -262,3 +262,15 @@ This file tracks all genuine contributions.
   - `CONTRIBUTIONS.md`
 - **Tests performed**: `flutter analyze` clean (0 issues), 1 unit test passed, 140 total tests passed.
 - **Commit**: Pending
+
+### Contribution 21
+- **Title**: Add EchoEmptyStateWidget component
+- **Category**: Features / UI Components
+- **Problem**: Empty states across queue, outbox, search, and audit log screens duplicated inline empty state container widgets.
+- **Solution**: Implemented reusable `EchoEmptyStateWidget` with configurable icon, title, subtitle, action label, and tap callback in `mobile/lib/shared/widgets/echo_empty_state_widget.dart`. Added widget test suite `echo_empty_state_widget_test.dart`.
+- **Files changed**:
+  - `mobile/lib/shared/widgets/echo_empty_state_widget.dart`
+  - `mobile/test/unit/echo_empty_state_widget_test.dart`
+  - `CONTRIBUTIONS.md`
+- **Tests performed**: `flutter analyze` clean (0 issues), 2 widget tests passed, 142 total tests passed.
+- **Commit**: Pending
