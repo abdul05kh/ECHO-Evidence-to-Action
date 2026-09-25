@@ -382,3 +382,15 @@ This file tracks all genuine contributions.
   - `CONTRIBUTIONS.md`
 - **Tests performed**: `flutter analyze` clean (0 issues), 2 unit tests passed, 166 total tests passed.
 - **Commit**: Pending
+
+### Contribution 31
+- **Title**: Add TaskTimelineWidget UI component
+- **Category**: Features / UI Components
+- **Problem**: Action packet task lifecycle progression stages were displayed as plain text strings without a visual step-by-step timeline widget.
+- **Solution**: Implemented `TaskTimelineWidget` in `mobile/lib/shared/widgets/task_timeline_widget.dart` rendering vertical progress connectors, completion indicators, stage titles, and descriptions. Added widget test suite `task_timeline_widget_test.dart`.
+- **Files changed**:
+  - `mobile/lib/shared/widgets/task_timeline_widget.dart`
+  - `mobile/test/unit/task_timeline_widget_test.dart`
+  - `CONTRIBUTIONS.md`
+- **Tests performed**: `flutter analyze` clean (0 issues), 1 widget test passed, 167 total tests passed.
+- **Commit**: Pending
