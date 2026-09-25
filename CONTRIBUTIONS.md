@@ -394,3 +394,15 @@ This file tracks all genuine contributions.
   - `CONTRIBUTIONS.md`
 - **Tests performed**: `flutter analyze` clean (0 issues), 1 widget test passed, 167 total tests passed.
 - **Commit**: Pending
+
+### Contribution 32
+- **Title**: Add StorageDiagnosticNotifier for system settings
+- **Category**: Features / State & Diagnostics
+- **Problem**: Storage diagnostics were read-only static strings on the AIRuntimeScreen without state management for tracking live database sizes and cache clearing.
+- **Solution**: Implemented `StorageDiagnosticNotifier` and `StorageDiagnosticState` in `mobile/lib/features/settings/storage_diagnostic_notifier.dart` with state mutation and cache clearing methods. Added unit test suite `storage_diagnostic_notifier_test.dart`.
+- **Files changed**:
+  - `mobile/lib/features/settings/storage_diagnostic_notifier.dart`
+  - `mobile/test/unit/storage_diagnostic_notifier_test.dart`
+  - `CONTRIBUTIONS.md`
+- **Tests performed**: `flutter analyze` clean (0 issues), 3 unit tests passed, 170 total tests passed.
+- **Commit**: Pending
