@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import '../../app/theme.dart';
 import '../../shared/widgets/status_pill.dart';
 import '../ai/local_llm_provider.dart';
@@ -256,6 +256,13 @@ class _HomeQueueScreenState extends State<HomeQueueScreen> {
     );
   }
 
+  Future<void> _onRefreshQueue() async {
+    await Future.delayed(const Duration(milliseconds: 500));
+    if (mounted) {
+      setState(() {});
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final filteredTasks = _filterState.apply(_activeTasks);
@@ -298,177 +305,183 @@ class _HomeQueueScreenState extends State<HomeQueueScreen> {
         ],
       ),
       body: SafeArea(
-        child: CustomScrollView(
-          slivers: [
-            SliverPadding(
-              padding: const EdgeInsets.all(16),
-              sliver: SliverList(
-                delegate: SliverChildListDelegate([
-                  // Primary Action Card
-                  InkWell(
-                    onTap: _openCapture,
-                    borderRadius: BorderRadius.circular(16),
-                    child: Container(
-                      padding: const EdgeInsets.all(20),
-                      decoration: BoxDecoration(
-                        color: EchoTheme.surfaceColor,
-                        borderRadius: BorderRadius.circular(16),
-                        border: Border.all(
-                            color: EchoTheme.accentGold.withAlpha(100),
-                            width: 1.5),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withAlpha(76),
-                            blurRadius: 12,
-                            offset: const Offset(0, 4),
-                          ),
-                        ],
-                      ),
-                      child: Row(
-                        children: [
-                          Container(
-                            width: 52,
-                            height: 52,
-                            decoration: const BoxDecoration(
-                              color: EchoTheme.accentGold,
-                              shape: BoxShape.circle,
-                            ),
-                            child: const Icon(Icons.add_a_photo_rounded,
-                                color: EchoTheme.textPrimary, size: 26),
-                          ),
-                          const SizedBox(width: 16),
-                          const Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  '+ CAPTURE ISSUE',
-                                  style: TextStyle(
-                                    fontSize: 17,
-                                    fontWeight: FontWeight.w800,
-                                    letterSpacing: 0.5,
-                                    color: EchoTheme.textPrimary,
-                                  ),
-                                ),
-                                SizedBox(height: 2),
-                                Text(
-                                  'Photograph + Voice context -> Action Packet',
-                                  style: TextStyle(
-                                    fontSize: 12.5,
-                                    color: EchoTheme.textSecondary,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          const Icon(Icons.arrow_forward_ios_rounded,
-                              size: 16, color: EchoTheme.textTertiary),
-                        ],
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-
-                  // Metrics Row
-                  Row(
-                    children: [
-                      _metricCard('ACTIVE TASKS', '${_activeTasks.length}',
-                          Icons.assignment_outlined, EchoTheme.actionBlue),
-                      const SizedBox(width: 10),
-                      _metricCard('AVG WORKFLOW', '38s', Icons.timer_outlined,
-                          EchoTheme.accentGoldDark),
-                      const SizedBox(width: 10),
-                      _metricCard('LOCAL PERSIST', '100%',
-                          Icons.storage_rounded, EchoTheme.successGreen),
-                    ],
-                  ),
-                  const SizedBox(height: 20),
-
-                  // Search and Filter Section
-                  _buildSearchAndFilterSection(),
-                  const SizedBox(height: 16),
-
-                  // Active Queue Header
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Text(
-                        'ACTIVE WORK ORDERS',
-                        style: TextStyle(
-                          fontSize: 12.5,
-                          fontWeight: FontWeight.w800,
-                          letterSpacing: 0.5,
-                          color: EchoTheme.textSecondary,
-                        ),
-                      ),
-                      Text(
-                        '${filteredTasks.length} of ${_activeTasks.length} items',
-                        style: const TextStyle(
-                            fontSize: 12, color: EchoTheme.textTertiary),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 10),
-
-                  if (filteredTasks.isEmpty)
-                    Container(
-                      padding: const EdgeInsets.all(32),
-                      alignment: Alignment.center,
-                      decoration: BoxDecoration(
-                        color: EchoTheme.surfaceColor,
-                        borderRadius: BorderRadius.circular(14),
-                        border: Border.all(color: EchoTheme.borderColor),
-                      ),
-                      child: Column(
-                        children: [
-                          Icon(
-                            _filterState.isFiltered
-                                ? Icons.search_off_rounded
-                                : Icons.task_alt_rounded,
-                            size: 40,
-                            color: EchoTheme.textTertiary,
-                          ),
-                          const SizedBox(height: 10),
-                          Text(
-                            _filterState.isFiltered
-                                ? 'No Matching Work Orders'
-                                : 'No Active Work Orders',
-                            style: const TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w600,
-                                color: EchoTheme.textPrimary),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            _filterState.isFiltered
-                                ? 'Try adjusting your search query or clear filters.'
-                                : 'Captured issues will appear here after approval.',
-                            style: const TextStyle(
-                                fontSize: 12, color: EchoTheme.textSecondary),
-                          ),
-                          if (_filterState.isFiltered) ...[
-                            const SizedBox(height: 12),
-                            TextButton.icon(
-                              onPressed: () {
-                                setState(() {
-                                  _searchController.clear();
-                                  _filterState = const SearchFilterState();
-                                });
-                              },
-                              icon:
-                                  const Icon(Icons.clear_all_rounded, size: 16),
-                              label: const Text('Clear Filters'),
+        child: RefreshIndicator(
+          onRefresh: _onRefreshQueue,
+          color: EchoTheme.accentGold,
+          backgroundColor: EchoTheme.surfaceColor,
+          child: CustomScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            slivers: [
+              SliverPadding(
+                padding: const EdgeInsets.all(16),
+                sliver: SliverList(
+                  delegate: SliverChildListDelegate([
+                    // Primary Action Card
+                    InkWell(
+                      onTap: _openCapture,
+                      borderRadius: BorderRadius.circular(16),
+                      child: Container(
+                        padding: const EdgeInsets.all(20),
+                        decoration: BoxDecoration(
+                          color: EchoTheme.surfaceColor,
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(
+                              color: EchoTheme.accentGold.withAlpha(100),
+                              width: 1.5),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withAlpha(76),
+                              blurRadius: 12,
+                              offset: const Offset(0, 4),
                             ),
                           ],
-                        ],
+                        ),
+                        child: Row(
+                          children: [
+                            Container(
+                              width: 52,
+                              height: 52,
+                              decoration: const BoxDecoration(
+                                color: EchoTheme.accentGold,
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(Icons.add_a_photo_rounded,
+                                  color: EchoTheme.textPrimary, size: 26),
+                            ),
+                            const SizedBox(width: 16),
+                            const Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    '+ CAPTURE ISSUE',
+                                    style: TextStyle(
+                                      fontSize: 17,
+                                      fontWeight: FontWeight.w800,
+                                      letterSpacing: 0.5,
+                                      color: EchoTheme.textPrimary,
+                                    ),
+                                  ),
+                                  SizedBox(height: 2),
+                                  Text(
+                                    'Photograph + Voice context -> Action Packet',
+                                    style: TextStyle(
+                                      fontSize: 12.5,
+                                      color: EchoTheme.textSecondary,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const Icon(Icons.arrow_forward_ios_rounded,
+                                size: 16, color: EchoTheme.textTertiary),
+                          ],
+                        ),
                       ),
-                    )
-                  else
-                    ...filteredTasks.map((task) => _buildTaskCard(task)),
-                ]),
+                    ),
+                    const SizedBox(height: 20),
+
+                    // Metrics Row
+                    Row(
+                      children: [
+                        _metricCard('ACTIVE TASKS', '${_activeTasks.length}',
+                            Icons.assignment_outlined, EchoTheme.actionBlue),
+                        const SizedBox(width: 10),
+                        _metricCard('AVG WORKFLOW', '38s', Icons.timer_outlined,
+                            EchoTheme.accentGoldDark),
+                        const SizedBox(width: 10),
+                        _metricCard('LOCAL PERSIST', '100%',
+                            Icons.storage_rounded, EchoTheme.successGreen),
+                      ],
+                    ),
+                    const SizedBox(height: 20),
+
+                    // Search and Filter Section
+                    _buildSearchAndFilterSection(),
+                    const SizedBox(height: 16),
+
+                    // Active Queue Header
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text(
+                          'ACTIVE WORK ORDERS',
+                          style: TextStyle(
+                            fontSize: 12.5,
+                            fontWeight: FontWeight.w800,
+                            letterSpacing: 0.5,
+                            color: EchoTheme.textSecondary,
+                          ),
+                        ),
+                        Text(
+                          '${filteredTasks.length} of ${_activeTasks.length} items',
+                          style: const TextStyle(
+                              fontSize: 12, color: EchoTheme.textTertiary),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 10),
+
+                    if (filteredTasks.isEmpty)
+                      Container(
+                        padding: const EdgeInsets.all(32),
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                          color: EchoTheme.surfaceColor,
+                          borderRadius: BorderRadius.circular(14),
+                          border: Border.all(color: EchoTheme.borderColor),
+                        ),
+                        child: Column(
+                          children: [
+                            Icon(
+                              _filterState.isFiltered
+                                  ? Icons.search_off_rounded
+                                  : Icons.task_alt_rounded,
+                              size: 40,
+                              color: EchoTheme.textTertiary,
+                            ),
+                            const SizedBox(height: 10),
+                            Text(
+                              _filterState.isFiltered
+                                  ? 'No Matching Work Orders'
+                                  : 'No Active Work Orders',
+                              style: const TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600,
+                                  color: EchoTheme.textPrimary),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              _filterState.isFiltered
+                                  ? 'Try adjusting your search query or clear filters.'
+                                  : 'Captured issues will appear here after approval.',
+                              style: const TextStyle(
+                                  fontSize: 12, color: EchoTheme.textSecondary),
+                            ),
+                            if (_filterState.isFiltered) ...[
+                              const SizedBox(height: 12),
+                              TextButton.icon(
+                                onPressed: () {
+                                  setState(() {
+                                    _searchController.clear();
+                                    _filterState = const SearchFilterState();
+                                  });
+                                },
+                                icon: const Icon(Icons.clear_all_rounded,
+                                    size: 16),
+                                label: const Text('Clear Filters'),
+                              ),
+                            ],
+                          ],
+                        ),
+                      )
+                    else
+                      ...filteredTasks.map((task) => _buildTaskCard(task)),
+                  ]),
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

@@ -250,3 +250,15 @@ This file tracks all genuine contributions.
   - `CONTRIBUTIONS.md`
 - **Tests performed**: `flutter analyze` clean (0 issues), 3 unit tests passed, 139 total tests passed.
 - **Commit**: Pending
+
+### Contribution 20
+- **Title**: Implement PullToRefresh gesture on HomeQueueScreen
+- **Category**: Features / UI & Interaction
+- **Problem**: `HomeQueueScreen` required navigating away or manually triggering diagnostics to reload queue state or re-check active work orders.
+- **Solution**: Wrapped `CustomScrollView` in `RefreshIndicator` gesture handling with `_onRefreshQueue` async callback, smooth accent Gold progress indicator, and state preservation. Added unit test suite `home_queue_refresh_test.dart`.
+- **Files changed**:
+  - `mobile/lib/features/home/home_queue_screen.dart`
+  - `mobile/test/unit/home_queue_refresh_test.dart`
+  - `CONTRIBUTIONS.md`
+- **Tests performed**: `flutter analyze` clean (0 issues), 1 unit test passed, 140 total tests passed.
+- **Commit**: Pending
