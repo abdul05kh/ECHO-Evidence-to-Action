@@ -406,3 +406,15 @@ This file tracks all genuine contributions.
   - `CONTRIBUTIONS.md`
 - **Tests performed**: `flutter analyze` clean (0 issues), 3 unit tests passed, 170 total tests passed.
 - **Commit**: Pending
+
+### Contribution 33
+- **Title**: Add EvidenceIntegrityChecksumCalculator utility
+- **Category**: Features / Security & Storage
+- **Problem**: Evidence attachments lacked tamper-proofing checksum generation for chain-of-custody verification.
+- **Solution**: Implemented `EvidenceIntegrityChecksumCalculator` in `mobile/lib/core/storage/evidence_integrity_checksum_calculator.dart` computing SHA-256 digests for byte arrays and UTF-8 strings. Added unit test suite `evidence_integrity_checksum_calculator_test.dart`.
+- **Files changed**:
+  - `mobile/lib/core/storage/evidence_integrity_checksum_calculator.dart`
+  - `mobile/test/unit/evidence_integrity_checksum_calculator_test.dart`
+  - `CONTRIBUTIONS.md`
+- **Tests performed**: `flutter analyze` clean (0 issues), 2 unit tests passed, 172 total tests passed.
+- **Commit**: Pending
