@@ -322,3 +322,15 @@ This file tracks all genuine contributions.
   - `CONTRIBUTIONS.md`
 - **Tests performed**: `flutter analyze` clean (0 issues), 3 unit tests passed, 153 total tests passed.
 - **Commit**: Pending
+
+### Contribution 26
+- **Title**: Add TaskCategoryFilterSelector widget
+- **Category**: Features / UI Components
+- **Problem**: Category selection chips were rendered as ad-hoc inline horizontal scroll loops in screen files.
+- **Solution**: Implemented reusable `TaskCategoryFilterSelector` in `mobile/lib/shared/widgets/task_category_filter_selector.dart` with choice chip styling and tap selection callbacks. Added widget test suite `task_category_filter_selector_test.dart`.
+- **Files changed**:
+  - `mobile/lib/shared/widgets/task_category_filter_selector.dart`
+  - `mobile/test/unit/task_category_filter_selector_test.dart`
+  - `CONTRIBUTIONS.md`
+- **Tests performed**: `flutter analyze` clean (0 issues), 2 widget tests passed, 155 total tests passed.
+- **Commit**: Pending
