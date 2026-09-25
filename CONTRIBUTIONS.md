@@ -370,3 +370,15 @@ This file tracks all genuine contributions.
   - `CONTRIBUTIONS.md`
 - **Tests performed**: `flutter analyze` clean (0 issues), 4 unit tests passed, 164 total tests passed.
 - **Commit**: Pending
+
+### Contribution 30
+- **Title**: Add TaskTimelineStepModel domain object
+- **Category**: Features / Domain & Workflow
+- **Problem**: Work order detail screens lacked a domain representation for displaying step-by-step progress timelines (Captured -> Grounded -> Policy Checked -> Exported -> Completed).
+- **Solution**: Implemented `TaskTimelineStepModel` with `TimelineStage` enum, completion flags, timestamp tracking, and JSON serialization in `mobile/lib/features/tasks/domain/task_timeline_step.dart`. Added unit test suite `task_timeline_step_test.dart`.
+- **Files changed**:
+  - `mobile/lib/features/tasks/domain/task_timeline_step.dart`
+  - `mobile/test/unit/task_timeline_step_test.dart`
+  - `CONTRIBUTIONS.md`
+- **Tests performed**: `flutter analyze` clean (0 issues), 2 unit tests passed, 166 total tests passed.
+- **Commit**: Pending
