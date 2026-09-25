@@ -346,3 +346,15 @@ This file tracks all genuine contributions.
   - `CONTRIBUTIONS.md`
 - **Tests performed**: `flutter analyze` clean (0 issues), 2 widget tests passed, 157 total tests passed.
 - **Commit**: Pending
+
+### Contribution 28
+- **Title**: Add EvidenceFileTypeValidator helper
+- **Category**: Features / Storage & Validation
+- **Problem**: File type validation for evidence attachments was hardcoded in multiple places without a centralized MIME type and extension registry.
+- **Solution**: Implemented `EvidenceFileTypeValidator` in `mobile/lib/core/storage/evidence_file_type_validator.dart` verifying extension validity and resolving standard MIME types (`image/jpeg`, `audio/m4a`, `application/json`, etc.). Added unit test suite `evidence_file_type_validator_test.dart`.
+- **Files changed**:
+  - `mobile/lib/core/storage/evidence_file_type_validator.dart`
+  - `mobile/test/unit/evidence_file_type_validator_test.dart`
+  - `CONTRIBUTIONS.md`
+- **Tests performed**: `flutter analyze` clean (0 issues), 3 unit tests passed, 160 total tests passed.
+- **Commit**: Pending
