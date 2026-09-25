@@ -274,3 +274,15 @@ This file tracks all genuine contributions.
   - `CONTRIBUTIONS.md`
 - **Tests performed**: `flutter analyze` clean (0 issues), 2 widget tests passed, 142 total tests passed.
 - **Commit**: Pending
+
+### Contribution 22
+- **Title**: Add EchoNetworkStatusBadge UI widget
+- **Category**: Features / UI Components
+- **Problem**: Offline, cellular, and Wi-Fi network connectivity statuses were not visually indicated in app top bars or settings overview panels.
+- **Solution**: Implemented `EchoNetworkStatusBadge` displaying color-coded pill badges (`ONLINE (WIFI)`, `ONLINE (CELLULAR)`, `OFFLINE (LOCAL QUEUE)`) with distinct icons and themed borders in `mobile/lib/shared/widgets/echo_network_status_badge.dart`. Added widget test suite `echo_network_status_badge_test.dart`.
+- **Files changed**:
+  - `mobile/lib/shared/widgets/echo_network_status_badge.dart`
+  - `mobile/test/unit/echo_network_status_badge_test.dart`
+  - `CONTRIBUTIONS.md`
+- **Tests performed**: `flutter analyze` clean (0 issues), 3 widget tests passed, 145 total tests passed.
+- **Commit**: Pending
